@@ -2,8 +2,10 @@
   "name": "natours-nodejs",
   "version": "1.0.0",
   "description": "node express mongodb",
-  "main": "app.js",
+  "main": "app.mjs",
+	"type": "module",
   "scripts": {
+		"start": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Andrew",
