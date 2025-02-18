@@ -5,12 +5,14 @@
   "main": "app.mjs",
   "type": "module",
   "scripts": {
-    "start": "nodemon app.js",
+    "start:dev": "nodemon server.js",
+		"start:prod": "NODE_ENV=production nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Andrew",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^16.4.7",
     "express": "^4.21.1",
     "morgan": "^1.10.0"
   }
