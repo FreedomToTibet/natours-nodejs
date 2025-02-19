@@ -2,6 +2,8 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import fs from 'fs';
 
+import { Tour } from '../models/tourModel';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -51,7 +53,6 @@ export const getAllTours = (req, res) => {
 };
 
 export const getTour = (req, res) => {
-  console.log(req.params);
   const id = req.params.id * 1;
 
   const tour = tours.find(el => el.id === id);
