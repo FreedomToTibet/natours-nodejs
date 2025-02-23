@@ -1,15 +1,16 @@
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-import fs from 'fs';
+// import { fileURLToPath } from 'url';
+// import { dirname } from 'path';
+// import fs from 'fs';
 
 import { Tour } from '../models/tourModel.js';
+import { APIFeatures } from '../utils/apiFeatures.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = dirname(__filename);
 
-const tours = JSON.parse(
-  fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
-);
+// const tours = JSON.parse(
+//   fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
+// );
 
 // export const checkID = (req, res, next, val) => {
 //   console.log(`Tour id is: ${val}`);
@@ -39,9 +40,21 @@ const tours = JSON.parse(
 //   next();
 // };
 
+export const aliasTopTours = (req, res, next) => {
+	req.query.limit = '5';
+	req.query.sort = '-ratingsAverage,price';
+	req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
+	next();
+};
+
 export const getAllTours = async (req, res) => {
   try {
-		const tours = await Tour.find();
+		const features = new APIFeatures(Tour.find(), req.query)
+			.filter()
+			.sort()
+			.limitFields()
+			.paginate();
+		const tours = await features.query;
 
 		res.status(200).json({
 			status: 'success',
