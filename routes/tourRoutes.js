@@ -18,10 +18,13 @@ router
 	.get(tourController.getMonthlyPlan);
 
 router
+	.route('/update-dates/:year')
+	.put(tourController.updateAllTourDates);
+
+router
 	.route('/')
 	.get(tourController.getAllTours)
-	.post(tourController.createTour)
-	.put(tourController.updateAllTourDates);
+	.post(tourController.createTour);
 
 router
 	.route('/:id')

@@ -1,44 +1,6 @@
-// import { fileURLToPath } from 'url';
-// import { dirname } from 'path';
-// import fs from 'fs';
-
 import { Tour } from '../models/tourModel.js';
 import APIFeatures from '../utils/apiFeatures.js';
 
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = dirname(__filename);
-
-// const tours = JSON.parse(
-//   fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
-// );
-
-// export const checkID = (req, res, next, val) => {
-//   console.log(`Tour id is: ${val}`);
-
-//   if (req.params.id * 1 > tours.length) {
-//     return res.status(404).json({
-//       status: 'fail',
-//       message: 'Invalid ID'
-//     });
-//   }
-//   next();
-// };
-
-// export const checkBody = (req, res, next) => {
-//   if (!req.body.name) {
-//     return res.status(400).json({
-//       status: 'fail',
-//       message: 'Missing name'
-//     });
-//   }
-// 	if (!req.body.price) {
-//     return res.status(400).json({
-//       status: 'fail',
-//       message: 'Missing price'
-//     });
-//   }
-//   next();
-// };
 
 export const aliasTopTours = (req, res, next) => {
 	req.query.limit = '5';
@@ -252,13 +214,14 @@ export const getMonthlyPlan = async (req, res) => {
 
 export const updateAllTourDates = async (req, res) => {
   try {
+		const year = req.params.year;
     // First, get all tours
     const tours = await Tour.find();
     
     // Filter tours that have startDates containing 2021
     const toursToUpdate = tours.filter(tour => 
       tour.startDates.some(date => 
-        date.toString().includes('2021')
+        date.toString().includes(year)
       )
     );
     
@@ -266,8 +229,8 @@ export const updateAllTourDates = async (req, res) => {
     const updatePromises = toursToUpdate.map(tour => {
       const newDates = tour.startDates.map(date => {
         const dateStr = date.toString();
-        return dateStr.includes('2021') 
-          ? dateStr.replace('2021', '2024') 
+        return dateStr.includes(year) 
+          ? dateStr.replace(year, '2024') 
           : dateStr;
       });
       
