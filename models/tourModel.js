@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 import slugify from 'slugify';
+import User from './userModel.js';
+import Review from './reviewModel.js';
 
 const tourSchema = new mongoose.Schema(
   {
@@ -114,6 +116,13 @@ tourSchema.virtual('durationWeeks').get(function () {
   return Number((this.duration / 7).toFixed(1));
 });
 
+// Virtual populate with reviews
+tourSchema.virtual('reviews', {
+	ref: 'Review',
+	foreignField: 'tour',
+	localField: '_id',
+});
+
 // DOCUMENT MIDDLEWARE: runs before .save() and .create()
 tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
@@ -126,10 +135,13 @@ tourSchema.pre(/^find/, function (next) {
 });
 
 tourSchema.pre(/^find/, function(next) {
-	this.populate({
-		path: 'guides',
-		select: '-__v -passwordChangedAt',
-	});
+  console.log('Starting population...');
+  this.populate({
+    path: 'guides',
+    // select: 'name role email -_id',
+		select: '-__v -passwordChangedAt'
+  });
+  next();
 });
 
 tourSchema.post(/^find/, function (docs, next) {
@@ -142,4 +154,6 @@ tourSchema.pre('aggregate', function (next) {
   next();
 });
 
-export const Tour = mongoose.model('Tour', tourSchema);
+const Tour = mongoose.model('Tour', tourSchema);
+
+export default Tour;
