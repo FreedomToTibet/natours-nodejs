@@ -1,4 +1,4 @@
-import { Tour } from '../models/tourModel.js';
+import Tour from '../models/tourModel.js';
 import APIFeatures from '../utils/apiFeatures.js';
 import catchAsync from '../utils/catchAsync.js';
 import AppError from '../utils/appError.js';
@@ -11,12 +11,21 @@ export const aliasTopTours = (req, res, next) => {
 };
 
 export const getAllTours = catchAsync(async (req, res, next) => {
+
+	console.log('Starting tour query...');
+
   const features = new APIFeatures(Tour.find(), req.query)
     .filter()
     .sort()
     .limitFields()
     .paginate();
   const tours = await features.query;
+
+	console.log(`Found ${tours.length} tours`);
+
+	if (!tours) {
+    return next(new AppError('No tours found', 404));
+  }
 
   res.status(200).json({
     status: 'success',
@@ -30,7 +39,7 @@ export const getAllTours = catchAsync(async (req, res, next) => {
 
 export const getTour = catchAsync(async (req, res, next) => {
   
-    const tour = await Tour.findById(req.params.id);
+    const tour = await Tour.findById(req.params.id).populate('reviews');
 
 		if (!tour) {
 			return next(new AppError('No tour found with that ID', 404));
