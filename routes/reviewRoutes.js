@@ -14,6 +14,7 @@ router
 		reviewController.createReview);
 
 router.route('/:id')
+	.patch(reviewController.updateReview)
 	.delete(reviewController.deleteReview);
 
 export default router;

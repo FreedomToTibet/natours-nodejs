@@ -2,7 +2,7 @@ import User from '../models/userModel.js';
 import catchAsync from '../utils/catchAsync.js';
 import AppError from '../utils/appError.js';
 
-import {deleteOne} from './handlerFactory.js';
+import { deleteOne, updateOne } from './handlerFactory.js';
 
 const filterObj = (obj, ...allowedFields) => {
 	const newObj = {};
@@ -38,13 +38,7 @@ export const createUser = (req, res) => {
 	});
 };
 
-export const updateUser = (req, res) => {
-	res.status(500).json({
-		status: 'error',
-		message: 'This route is not yet defined!'
-	});
-};
-
+export const updateUser = updateOne(User); // doesn't update password
 export const deleteUser = deleteOne(User);
 
 export const updateMe = catchAsync(async (req, res, next) => {
