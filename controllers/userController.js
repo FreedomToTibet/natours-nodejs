@@ -2,6 +2,8 @@ import User from '../models/userModel.js';
 import catchAsync from '../utils/catchAsync.js';
 import AppError from '../utils/appError.js';
 
+import {deleteOne} from './handlerFactory.js';
+
 const filterObj = (obj, ...allowedFields) => {
 	const newObj = {};
 	Object.keys(obj).forEach((el) => {
@@ -43,12 +45,7 @@ export const updateUser = (req, res) => {
 	});
 };
 
-export const deleteUser = (req, res) => {
-	res.status(500).json({
-		status: 'error',
-		message: 'This route is not yet defined!'
-	});
-};
+export const deleteUser = deleteOne(User);
 
 export const updateMe = catchAsync(async (req, res, next) => {
 	// 1) Create error if user POSTs password data
