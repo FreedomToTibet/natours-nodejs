@@ -1,6 +1,8 @@
 import Review from "../models/reviewModel.js";
 import catchAsync from "../utils/catchAsync.js";
 
+import {deleteOne} from './handlerFactory.js';
+
 export const getAllReviews = catchAsync(async (req, res, next) => {
 	// Allow for nested GET reviews on tour (hack)
 	let filter = {};
@@ -38,3 +40,5 @@ export const setTourUserIds = (req, res, next) => {
   if (!req.body.user) req.body.user = req.user.id;
   next();
 };
+
+export const deleteReview = deleteOne(Review);
