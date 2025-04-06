@@ -10,28 +10,30 @@ router.post('/login', authController.login);
 router.post('/forgotPassword', authController.forgotPassword);
 router.patch('/resetPassword/:token', authController.resetPassword);
 
+// Protect all routes after this middleware
+router.use(authController.protect);
+
 router.patch(
   '/updateMyPassword',
-  authController.protect,
   authController.updatePassword
 );
 
 router.get(
   '/me',
-  authController.protect,
   userController.getMe,
   userController.getUser
 );
 router.patch(
-	'/updateMe', 
-	authController.protect, 
+	'/updateMe',
 	userController.updateMe
 );
 router.delete(
-	'/deleteMe', 
-	authController.protect, 
+	'/deleteMe',
 	userController.deleteMe
 );
+
+// Only admin can access these routes
+router.use(authController.restrictTo('admin'));
 
 router
   .route('/')
