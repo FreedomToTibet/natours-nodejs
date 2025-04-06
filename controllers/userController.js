@@ -2,7 +2,13 @@ import User from '../models/userModel.js';
 import catchAsync from '../utils/catchAsync.js';
 import AppError from '../utils/appError.js';
 
-import { deleteOne, updateOne } from './handlerFactory.js';
+import { deleteOne, updateOne, getOne, getAll } from './handlerFactory.js';
+
+export const updateUser = updateOne(User); // doesn't update password
+export const deleteUser = deleteOne(User);
+
+export const getUser = getOne(User);
+export const getAllUsers = getAll(User);
 
 const filterObj = (obj, ...allowedFields) => {
 	const newObj = {};
@@ -12,34 +18,12 @@ const filterObj = (obj, ...allowedFields) => {
 	return newObj;
 };
 
-export const getAllUsers = catchAsync(async (req, res, next) => {
-	const users = await User.find();
-
-	res.status(200).json({
-		status: 'success',
-		results: users.length,
-		data: {
-			users
-		}
-	});
-});
-
-export const getUser = (req, res) => {
+export const createUser = (res, req) => {
 	res.status(500).json({
 		status: 'error',
-		message: 'This route is not yet defined!'
+		message: 'This route is not yet defined! Please use /signup instead!'
 	});
 };
-
-export const createUser = (req, res) => {
-	res.status(500).json({
-		status: 'error',
-		message: 'This route is not yet defined!'
-	});
-};
-
-export const updateUser = updateOne(User); // doesn't update password
-export const deleteUser = deleteOne(User);
 
 export const updateMe = catchAsync(async (req, res, next) => {
 	// 1) Create error if user POSTs password data
