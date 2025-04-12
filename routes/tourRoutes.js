@@ -23,6 +23,10 @@ router
     tourController.getMonthlyPlan
   );
 
+router
+	.route('/tours-within/:distance/center/:latlng/unit/:unit')
+	.get(tourController.getToursWithin);
+
 router.route('/update-dates/:year').put(tourController.updateAllTourDates);
 
 router

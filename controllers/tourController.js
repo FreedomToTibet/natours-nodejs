@@ -1,6 +1,8 @@
 import Tour from '../models/tourModel.js';
 
 import catchAsync from '../utils/catchAsync.js';
+import AppError from '../utils/appError.js';
+import APIFeatures from '../utils/apiFeatures.js';
 
 import { deleteOne, updateOne, createOne, getOne, getAll } from './handlerFactory.js';
 
@@ -132,4 +134,27 @@ export const updateAllTourDates = catchAsync(async (req, res, next) => {
         message: `Updated ${updatedTours.length} tours`,
       },
     });
+});
+
+export const getToursWithin = catchAsync(async (req, res, next) => {
+ 
+		const { distance, latlng, unit } = req.params;
+		const [lat, lng] = latlng.split(',');
+		const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1;
+
+		if (!lat || !lng) {
+			return next(new AppError('Please provide latitude and longitude in the format lat,lng.', 400));
+		}
+
+		const tours = await Tour.find({
+			startLocation: { $geoWithin: { $centerSphere: [[lng, lat], radius] } },
+		});
+
+		res.status(200).json({
+			status: 'success',
+			results: tours.length,
+			data: {
+				data: tours,
+			},
+		});
 });
