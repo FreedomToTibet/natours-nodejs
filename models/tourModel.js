@@ -1,7 +1,5 @@
 import mongoose from 'mongoose';
 import slugify from 'slugify';
-import User from './userModel.js';
-import Review from './reviewModel.js';
 
 const tourSchema = new mongoose.Schema(
   {
@@ -111,6 +109,10 @@ const tourSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   }
 );
+
+// Indexing
+tourSchema.index({ price: 1, ratingsAverage: -1 });
+tourSchema.index({ slug: 1 });
 
 tourSchema.virtual('durationWeeks').get(function () {
   return Number((this.duration / 7).toFixed(1));
