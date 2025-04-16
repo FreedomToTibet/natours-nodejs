@@ -25,3 +25,23 @@ export const login = async (email, password) => {
     console.error('Login error:', err.response.data);
   }
 };
+
+export const logout = async () => {
+	try {
+		const res = await axios({
+			method: 'GET',
+			url: '/api/v1/users/logout',
+		});
+
+		if (res.data.status === 'success') {
+			showAlert('success', 'Logged out successfully!');
+			// Redirect to the login page after successful logout
+			window.setTimeout(() => {
+				location.reload(true);
+			}, 1500); // Redirect after 1.5 seconds
+		}
+	} catch (err) {
+		showAlert('error', 'Error logging out! Please try again.');
+		console.error('Logout error:', err.response.data);
+	}
+};

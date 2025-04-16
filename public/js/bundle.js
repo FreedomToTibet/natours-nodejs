@@ -6063,7 +6063,7 @@ var showAlert = exports.showAlert = function showAlert(type, msg) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.login = void 0;
+exports.logout = exports.login = void 0;
 var _axios = _interopRequireDefault(require("axios"));
 var _alert = require("./alert");
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
@@ -6112,6 +6112,44 @@ var login = exports.login = /*#__PURE__*/function () {
   }));
   return function login(_x, _x2) {
     return _ref.apply(this, arguments);
+  };
+}();
+var logout = exports.logout = /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2() {
+    var res;
+    return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+      while (1) switch (_context2.prev = _context2.next) {
+        case 0:
+          _context2.prev = 0;
+          _context2.next = 3;
+          return (0, _axios.default)({
+            method: 'GET',
+            url: '/api/v1/users/logout'
+          });
+        case 3:
+          res = _context2.sent;
+          if (res.data.status === 'success') {
+            (0, _alert.showAlert)('success', 'Logged out successfully!');
+            // Redirect to the login page after successful logout
+            window.setTimeout(function () {
+              location.reload(true);
+            }, 1500); // Redirect after 1.5 seconds
+          }
+          _context2.next = 11;
+          break;
+        case 7:
+          _context2.prev = 7;
+          _context2.t0 = _context2["catch"](0);
+          (0, _alert.showAlert)('error', 'Error logging out! Please try again.');
+          console.error('Logout error:', _context2.t0.response.data);
+        case 11:
+        case "end":
+          return _context2.stop();
+      }
+    }, _callee2, null, [[0, 7]]);
+  }));
+  return function logout() {
+    return _ref2.apply(this, arguments);
   };
 }();
 },{"axios":"../../node_modules/axios/index.js","./alert":"alert.js"}],"mapbox.js":[function(require,module,exports) {
@@ -6170,6 +6208,7 @@ var _mapbox = require("./mapbox.js");
 // DOM Elements
 var mapBox = document.getElementById('map');
 var loginForm = document.querySelector('.form--login');
+var logOutBtn = document.querySelector('.nav__el--logout');
 
 // Delegation
 if (mapBox) {
@@ -6182,6 +6221,14 @@ if (loginForm) {
     var email = document.getElementById('email').value;
     var password = document.getElementById('password').value;
     (0, _login.login)(email, password);
+  });
+}
+if (logOutBtn) {
+  logOutBtn.addEventListener('click', function (e) {
+    e.preventDefault();
+    // Perform logout action here
+    console.log('Logging out...');
+    (0, _login.logout)();
   });
 }
 },{"./login.js":"login.js","./mapbox.js":"mapbox.js"}],"../../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
