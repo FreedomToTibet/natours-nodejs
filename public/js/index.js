@@ -1,9 +1,10 @@
-import { login } from './login.js';
+import { login, logout } from './login.js';
 import { displayMap } from './mapbox.js';
 
 // DOM Elements
 const mapBox = document.getElementById('map');
 const loginForm = document.querySelector('.form--login');
+const logOutBtn = document.querySelector('.nav__el--logout');
 
 // Delegation
 if (mapBox) {
@@ -18,4 +19,13 @@ if (loginForm) {
     const password = document.getElementById('password').value;
     login(email, password);
   });
+}
+
+if (logOutBtn) {
+	logOutBtn.addEventListener('click', e => {
+		e.preventDefault();
+		// Perform logout action here
+		console.log('Logging out...');
+		logout();
+	});
 }
