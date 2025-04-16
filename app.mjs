@@ -5,6 +5,8 @@ import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 import xss from 'xss-clean';
 import hpp from 'hpp';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -23,21 +25,29 @@ const __dirname = dirname(__filename);
 
 const app = express();
 
+app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:8000',
+  credentials: true
+}));
+app.options('*', cors());
+
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 
 // 1) MIDDLEWARES
 app.use(
-	helmet({
+  helmet({
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'", 'https:', 'http:', 'data:', 'ws:'],
         baseUri: ["'self'"],
         fontSrc: ["'self'", 'https:', 'http:', 'data:'],
-        scriptSrc: ["'self'", 'https:', 'http:', 'blob:'],
+        scriptSrc: ["'self'", "'unsafe-inline'", 'https:', 'http:', 'blob:'],
         styleSrc: ["'self'", "'unsafe-inline'", 'https:', 'http:'],
         imgSrc: ["'self'", 'data:', 'blob:'],
-        connectSrc: ["'self'", 'blob:', 'https:', 'http:']
+        connectSrc: ["'self'", 'blob:', 'https:', 'http:', 'ws:', 'wss:'],
+        upgradeInsecureRequests: []
       }
     }
   })
@@ -58,6 +68,7 @@ app.use('/api', limiter);
 app.use(express.json({
 	limit: '10kb'
 }));
+app.use(cookieParser());
 
 app.use(mongoSanitize());
 app.use(xss());
@@ -79,6 +90,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use((req, res, next) => {
 	req.requestTime = new Date().toISOString();
+	// console.log(req.cookies);
 	next();
 });
 
