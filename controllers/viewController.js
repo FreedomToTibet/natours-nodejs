@@ -33,3 +33,9 @@ export const getLoginForm = (req, res) => {
 	});
 };
 
+export const getAccount = (req, res) => {
+	res.status(200).render('account', {
+		title: 'Your account',
+	});
+};
+
