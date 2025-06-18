@@ -11,9 +11,14 @@ html
 	body
 		include _header
 		block content
-			h1 This is a placeholder heading
-		include _footer
-		//- script(src='https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.7/axios.min.js')
-		//- script(src='/js/mapbox.js')
-		//- script(src='/js/login.js' type='module')
+			h1 This is a placeholder heading		include _footer
+		
+		//- Load Stripe.js and other scripts
+		script(src="https://js.stripe.com/v3/")
 		script(src='/js/bundle.js')
+		
+		//- Verify Stripe.js loading
+		script.
+			window.addEventListener('DOMContentLoaded', function() {
+				if (window.Stripe) console.log('Stripe.js loaded successfully');
+			});

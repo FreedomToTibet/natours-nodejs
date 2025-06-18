@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { showAlert } from './alert';
+import { showAlert } from './alert.js';
 
 export const login = async (email, password) => {
 	console.log('Attempting to log in...');
