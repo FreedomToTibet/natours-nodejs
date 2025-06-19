@@ -34,6 +34,12 @@ console.log('✓ Found STRIPE_SECRET in environment variables');
 // Verify keys belong to same account
 async function verifyKeys() {
   try {
+    // Only proceed if we have a valid secret key
+    if (!stripeSecret || stripeSecret === 'YOUR_STRIPE_SECRET_KEY_HERE') {
+      console.error('❌ Valid STRIPE_SECRET not found. Please update your config.env file');
+      process.exit(1);
+    }
+    
     // Check if publishable key is from same account as secret key
     const stripe = new Stripe(stripeSecret, {
       apiVersion: '2023-10-16'
