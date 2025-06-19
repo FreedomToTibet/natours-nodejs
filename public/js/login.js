@@ -32,12 +32,11 @@ export const logout = async () => {
 			method: 'GET',
 			url: '/api/v1/users/logout',
 		});
-
 		if (res.data.status === 'success') {
 			showAlert('success', 'Logged out successfully!');
-			// Redirect to the login page after successful logout
+			// Redirect to the homepage after successful logout
 			window.setTimeout(() => {
-				location.reload(true);
+				location.assign('/');
 			}, 1500); // Redirect after 1.5 seconds
 		}
 	} catch (err) {

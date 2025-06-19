@@ -103,3 +103,113 @@ export const getCheckoutSession = catchAsync(async (req, res, next) => {
     return next(new AppError('Failed to create payment session', 500));
   }
 });
+
+// Function for handling successful bookings through URL parameters (legacy approach)
+export const handleSuccessfulBooking = catchAsync(async (req, res, next) => {
+  // This is only TEMPORARY, until we deploy the site to a real server with Stripe webhooks
+  if (req.query.alert === 'booking') {
+    // Show success message
+    res.locals.alert = {
+      type: 'success',
+      message: 'Your booking was successful! Please check your email for a confirmation. If your booking doesn\'t show up immediately, please check back later.'
+    };
+  }
+  next();
+});
+
+export const createBookingCheckout = async (session) => {
+	try {
+		// Check if session exists
+		if (!session) {
+			console.error('Session object is null or undefined');
+			return;
+		}
+
+		// Log session for debugging
+		console.log('Session data received:', {
+			id: session.id,
+			client_reference_id: session.client_reference_id,
+			customer_email: session.customer_email,
+			hasLineItems: !!session.line_items
+		});
+
+		const tour = session.client_reference_id;
+		
+		// Find user by email
+		const userDoc = await User.findOne({ email: session.customer_email });
+		if (!userDoc) {
+			console.error(`User not found for email: ${session.customer_email}`);
+			return;
+		}
+		const user = userDoc.id;
+		
+		// Get price from the session - updated to use line_items or amount_total
+		let price;
+		
+		if (session.amount_total) {
+			// Use the session total amount if available
+			price = session.amount_total / 100;
+		} else if (session.line_items && session.line_items.data && session.line_items.data.length > 0) {
+			// If line_items is expanded, use that
+			price = session.line_items.data[0].amount_total / 100;
+		} else {
+			// Fallback to retrieving the session with expanded line_items
+			const stripeSecret = process.env.STRIPE_SECRET;
+			const stripe = new Stripe(stripeSecret);
+			
+			// Retrieve session with expanded line_items
+			const retrievedSession = await stripe.checkout.sessions.retrieve(session.id, {
+				expand: ['line_items']
+			});
+			
+			// Get price from line_items
+			if (retrievedSession.line_items && retrievedSession.line_items.data.length > 0) {
+				price = retrievedSession.line_items.data[0].amount_total / 100;
+			} else if (retrievedSession.amount_total) {
+				price = retrievedSession.amount_total / 100;
+			} else {
+				console.error('Could not determine price from session', session.id);
+				return;
+			}
+		}
+
+		// Create the booking
+		const booking = await Booking.create({ tour, user, price });
+		console.log('Booking created successfully:', booking.id);	} catch (error) {
+		console.error('Error creating booking checkout:', error);
+	}
+};
+
+export const webhookCheckout = (req, res, next) => {
+	const signature = req.headers['stripe-signature'];
+	const stripeSecret = process.env.STRIPE_SECRET;
+	
+	// Initialize Stripe with the secret key
+	const stripe = new Stripe(stripeSecret);
+
+	let event;
+	try {
+		event = stripe.webhooks.constructEvent(
+			req.body,
+			signature,
+			process.env.STRIPE_WEBHOOK_SECRET
+		);
+		
+		console.log('Webhook received:', event.type);
+	} catch (err) {
+		console.error('Webhook error:', err.message);
+		return res.status(400).send(`Webhook error: ${err.message}`);
+	}
+
+	if (event.type === 'checkout.session.completed') {
+		createBookingCheckout(event.data.object);
+	}
+
+	res.status(200).json({ received: true });
+};
+
+export const createBooking = createOne(Booking);
+export const getBooking = getOne(Booking);
+export const getAllBookings = getAll(Booking);
+export const updateBooking = updateOne(Booking);
+export const deleteBooking = deleteOne(Booking);
