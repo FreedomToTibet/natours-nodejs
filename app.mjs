@@ -7,6 +7,7 @@ import xss from 'xss-clean';
 import hpp from 'hpp';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import compression from 'compression';
 
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -20,6 +21,8 @@ import userRouter from './routes/userRoutes.js';
 import reviewRouter from './routes/reviewRoutes.js';
 import bookingRouter from './routes/bookingRoutes.js';
 import viewRouter from './routes/viewRoutes.js';
+
+import * as bookingController from './controllers/bookingController.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -65,6 +68,7 @@ const limiter = rateLimit({
 });
 
 app.use('/api', limiter);
+app.post('/webhook-checkout', express.raw({ type: 'application/json' }), bookingController.webhookCheckout);
 
 app.use(express.json({
 	limit: '10kb'
@@ -98,6 +102,8 @@ app.use((req, res, next) => {
 	// console.log(req.cookies);
 	next();
 });
+
+app.use(compression());
 
 // 3) ROUTES
 
