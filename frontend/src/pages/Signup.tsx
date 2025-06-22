@@ -1,17 +1,29 @@
 import { Link } from 'react-router-dom';
 
-function Login() {
+function Signup() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Add login logic here
-    console.log('Login form submitted');
+    // TODO: Add signup logic here
+    console.log('Signup form submitted');
   };
 
   return (
     <main className="main">
       <div className="login-form">
-        <h2 className="heading-secondary ma-bt-lg">Log into your account</h2>
+        <h2 className="heading-secondary ma-bt-lg">Create your account</h2>
         <form className="form form--login" onSubmit={handleSubmit}>
+          <div className="form__group">
+            <label className="form__label" htmlFor="name">
+              Full Name
+            </label>
+            <input
+              id="name"
+              className="form__input"
+              type="text"
+              placeholder="John Doe"
+              required
+            />
+          </div>
           <div className="form__group">
             <label className="form__label" htmlFor="email">
               Email address
@@ -37,18 +49,31 @@ function Login() {
               minLength={8}
             />
           </div>
+          <div className="form__group ma-bt-md">
+            <label className="form__label" htmlFor="passwordConfirm">
+              Confirm Password
+            </label>
+            <input
+              id="passwordConfirm"
+              className="form__input"
+              type="password"
+              placeholder="••••••••"
+              required
+              minLength={8}
+            />
+          </div>
           <div className="form__group">
             <button className="btn btn--green" type="submit">
-              Log In
+              Sign Up
             </button>
           </div>
         </form>        
         <div className="form-bottom-section">
           <p className="form-bottom-text">
-            Don't have an account?
+            Already have an account?
           </p>
-          <Link to="/signup" className="btn btn--green btn--small">
-            Sign Up
+          <Link to="/login" className="btn btn--green btn--small">
+            Log In
           </Link>
         </div>
       </div>
@@ -56,4 +81,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default Signup;

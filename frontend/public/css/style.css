@@ -1346,12 +1346,25 @@ body {
   grid-auto-flow: column;
   overflow-x: scroll;
   overflow-y: hidden;
-  -ms-scroll-snap-type: x mandatory;
-  scroll-snap-type: x mandatory;
+  -ms-scroll-snap-type: x mandatory;  scroll-snap-type: x mandatory;
   scroll-padding: 2rem;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* Internet Explorer 10+ */
   max-width: 100vw;
   width: 100%;
+}
+
+/* Form bottom section styles for login/signup cross-navigation */
+.form-bottom-section {
+  text-align: center;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.form-bottom-text {
+  margin-bottom: 1rem;
+  font-size: 1.4rem;
+  color: #777;
 }

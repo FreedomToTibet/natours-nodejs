@@ -10,12 +10,11 @@ function Header() {
       </nav>
       <div className="header__logo">
         <img src="/img/logo-white.png" alt="Natours logo" />
-      </div>
-      <nav className="nav nav--user">
+      </div>      <nav className="nav nav--user">
         <Link to="/login" className="nav__el">
           Log in
         </Link>
-        <Link to="#" className="nav__el nav__el--cta">
+        <Link to="/signup" className="nav__el nav__el--cta">
           Sign up
         </Link>
       </nav>
