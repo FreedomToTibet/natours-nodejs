@@ -2,6 +2,7 @@ import {
   TourHeader,
   TourDescription,
   TourPictures,
+  TourMap,
   TourReviews,
   TourCta,
 } from '../components';
@@ -12,6 +13,7 @@ function Tour() {
       <TourHeader />
       <TourDescription />
       <TourPictures />
+      <TourMap />
       <TourReviews />
       <TourCta />
     </>
