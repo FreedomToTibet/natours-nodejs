@@ -1,5 +1,21 @@
+import {
+  TourHeader,
+  TourDescription,
+  TourPictures,
+  TourReviews,
+  TourCta,
+} from '../components';
+
 function Tour() {
-  return <div>Tour Page</div>;
+  return (
+    <>
+      <TourHeader />
+      <TourDescription />
+      <TourPictures />
+      <TourReviews />
+      <TourCta />
+    </>
+  );
 }
 
 export default Tour;
