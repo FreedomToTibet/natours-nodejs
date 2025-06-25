@@ -1368,3 +1368,34 @@ body {
   font-size: 1.4rem;
   color: #777;
 }
+
+/* Loading spinner styles */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  text-align: center;
+}
+
+.loading-spinner {
+  width: 4rem;
+  height: 4rem;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #55c57a;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 2rem;
+}
+
+.loading-text {
+  color: #777;
+  font-size: 1.8rem;
+  font-weight: 400;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

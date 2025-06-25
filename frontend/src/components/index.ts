@@ -7,4 +7,5 @@ export { default as TourPictures } from './TourPictures';
 export { default as TourMap } from './TourMap';
 export { default as TourReviews } from './TourReviews';
 export { default as TourCta } from './TourCta';
+export { default as LoadingSpinner } from './LoadingSpinner';
 export { default } from './AppLayout';
