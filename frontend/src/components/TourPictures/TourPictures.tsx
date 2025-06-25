@@ -1,27 +1,21 @@
-function TourPictures() {
+import type { Tour } from '../../services';
+
+interface TourPicturesProps {
+  tour: Tour;
+}
+
+function TourPictures({ tour }: TourPicturesProps) {
   return (
     <section className="section-pictures">
-      <div className="picture-box">
-        <img
-          className="picture-box__img picture-box__img--1"
-          src="/img/tours/tour-5-1.jpg"
-          alt="The Park Camper Tour 1"
-        />
-      </div>
-      <div className="picture-box">
-        <img
-          className="picture-box__img picture-box__img--2"
-          src="/img/tours/tour-5-2.jpg"
-          alt="The Park Camper Tour 2"
-        />
-      </div>
-      <div className="picture-box">
-        <img
-          className="picture-box__img picture-box__img--3"
-          src="/img/tours/tour-5-3.jpg"
-          alt="The Park Camper Tour 3"
-        />
-      </div>
+      {tour.images.slice(0, 3).map((image, index) => (
+        <div key={index} className="picture-box">
+          <img
+            className={`picture-box__img picture-box__img--${index + 1}`}
+            src={`/img/tours/${image}`}
+            alt={`${tour.name} ${index + 1}`}
+          />
+        </div>
+      ))}
     </section>
   );
 }

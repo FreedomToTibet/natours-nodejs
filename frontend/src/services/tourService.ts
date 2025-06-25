@@ -122,16 +122,39 @@ export const getTour = async (id: string): Promise<Tour> => {
 // Get tour by slug
 export const getTourBySlug = async (slug: string): Promise<Tour> => {
   try {
-    const response = await api.get(`/tours?slug=${slug}`);
-    const tours = response.data?.data?.data;
+    // First, get all tours to find the one with matching slug
+    const allToursResponse = await api.get('/tours');
+    const allTours = allToursResponse.data?.data?.data;
     
-    if (!tours || !Array.isArray(tours) || tours.length === 0) {
-      throw new Error('Tour not found');
+    if (!allTours || !Array.isArray(allTours)) {
+      throw new Error('Invalid API response structure');
     }
     
-    return tours[0];
+    const tourWithSlug = allTours.find(t => t.slug === slug);
+    
+    if (!tourWithSlug) {
+      throw new Error(`Tour with slug "${slug}" not found`);
+    }
+    
+    // Now fetch the individual tour by ID to get populated data (including reviews)
+    try {
+      const singleTourResponse = await api.get(`/tours/${tourWithSlug._id}`);
+      const tourData = singleTourResponse.data?.data?.data;
+      
+      if (tourData) {
+        return tourData;
+      }
+    } catch (error) {
+      console.warn('Failed to fetch detailed tour data, falling back to basic data:', error);
+    }
+    
+    // Fallback to the tour data from getAllTours if individual fetch fails
+    return tourWithSlug;
   } catch (error: unknown) {
     console.error('Error fetching tour by slug:', error);
-    throw new Error('Failed to fetch tour');
+    if (error instanceof Error) {
+      throw new Error(`Failed to fetch tour: ${error.message}`);
+    }
+    throw new Error('Failed to fetch tour: Unknown error');
   }
 };

@@ -1,36 +1,17 @@
-function TourReviews() {
-  const reviews = [
-    {
-      id: '1',
-      user: { name: 'Jim Brown', photo: 'user-7.jpg' },
-      review: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Cumque alias animi.',
-      rating: 5,
-    },
-    {
-        id: '2',
-        user: { name: 'Laura Wilson', photo: 'user-15.jpg' },
-        review: 'Veniam ex ea et eum quo voluptatem unde nihil.',
-        rating: 4,
-    },
-    {
-        id: '3',
-        user: { name: 'Ben Hadley', photo: 'user-14.jpg' },
-        review: 'Accusantium quis, voluptates dolore eaque.',
-        rating: 5,
-    },
-    {
-        id: '4',
-        user: { name: 'Aarav Lynn', photo: 'user-3.jpg' },
-        review: 'Quo, vitae quidem, quod soluta.',
-        rating: 4,
-    },
-  ];
+import type { Tour } from '../../services';
+
+interface TourReviewsProps {
+  tour: Tour;
+}
+
+function TourReviews({ tour }: TourReviewsProps) {
+  const reviews = tour.reviews || [];
 
   return (
     <section className="section-reviews">
       <div className="reviews">
         {reviews.map((review) => (
-          <div className="reviews__card" key={review.id}>
+          <div className="reviews__card" key={review._id}>
             <div className="reviews__avatar">
               <img
                 className="reviews__avatar-img"
