@@ -20,13 +20,26 @@ const TourMap = ({ tour }: TourMapProps) => {
     // Set Mapbox access token
     mapboxgl.accessToken = MAPBOX_TOKEN;
 
-    // Initialize map
+    // Initialize map with enhanced controls
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/jonasschmedtmann/cjvi9q8jd04mi1cpgmg7ev3dy',
-      scrollZoom: false,
-      interactive: true
+      scrollZoom: true, // Enable scroll zoom
+      interactive: true,
+      doubleClickZoom: true, // Enable double-click to zoom
+      touchZoomRotate: true, // Enable touch zoom and rotate
+      dragRotate: false, // Disable rotation for cleaner UX
+      pitchWithRotate: false
     });
+
+    // Add navigation controls (zoom in/out buttons)
+    map.current.addControl(new mapboxgl.NavigationControl({
+      showCompass: false, // Hide compass for cleaner look
+      showZoom: true // Show zoom buttons
+    }), 'top-right');
+
+    // Add fullscreen control
+    map.current.addControl(new mapboxgl.FullscreenControl(), 'top-right');
 
     // Use tour locations
     const locations = tour.locations || [];
@@ -51,7 +64,24 @@ const TourMap = ({ tour }: TourMapProps) => {
         const markerEl = document.createElement('div');
         markerEl.className = 'marker';
 
-        // Add marker to map
+        // Create interactive popup with close button
+        const popup = new mapboxgl.Popup({
+          offset: 35,
+          closeButton: true, // Enable close button
+          focusAfterOpen: false,
+          closeOnClick: false,
+          closeOnMove: false, // Prevent closing when map moves
+          className: 'tour-popup' // Custom class for styling
+        })
+          .setLngLat(loc.coordinates)
+          .setHTML(`
+            <div class="popup-content">
+              <h4>Day ${loc.day}</h4>
+              <p>${loc.description}</p>
+            </div>
+          `);
+
+        // Add marker to map with popup interaction
         new mapboxgl.Marker({
           element: markerEl,
           anchor: 'bottom'
@@ -59,16 +89,21 @@ const TourMap = ({ tour }: TourMapProps) => {
           .setLngLat(loc.coordinates)
           .addTo(map.current!);
 
-        // Add popup that's always visible (not on click/hover)
-        new mapboxgl.Popup({
-          offset: 35,
-          closeButton: false,
-          focusAfterOpen: false,
-          closeOnClick: false
-        })
-          .setLngLat(loc.coordinates)
-          .setHTML(`<p>Day ${loc.day}: ${loc.description}</p>`)
-          .addTo(map.current!);
+        // Initially show all popups
+        popup.addTo(map.current!);
+
+        // Add click event to marker to toggle popup
+        markerEl.addEventListener('click', () => {
+          if (popup.isOpen()) {
+            popup.remove();
+          } else {
+            popup.addTo(map.current!);
+          }
+        });
+
+        // Style the marker for better interaction feedback
+        markerEl.style.cursor = 'pointer';
+        markerEl.title = `Day ${loc.day}: ${loc.description}`;
       });
     } else {
       // Default center if no locations
