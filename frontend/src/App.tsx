@@ -38,7 +38,7 @@ function App() {
       </Router>
       <ToastContainer
         position="top-center"
-        autoClose={5000}
+        autoClose={3000}
         hideProgressBar={false}
         newestOnTop={false}
         closeOnClick
@@ -46,6 +46,12 @@ function App() {
         pauseOnFocusLoss
         draggable
         pauseOnHover
+				toastStyle={{ 
+					color: '#55c57a',
+					fontSize: '1.6rem',
+					fontWeight: '600',
+					backgroundColor: '#FFFFFF',
+				}}
       />
     </QueryClientProvider>
   );
