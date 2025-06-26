@@ -37,7 +37,7 @@ export const useLogin = () => {
     onSuccess: (data) => {
       toast.success('Logged in successfully!');
       queryClient.setQueryData(['currentUser'], data.data.user);
-      navigate('/me');
+      navigate('/'); // Redirect to main page instead of /me
     },
     onError: (error: Error & { response?: { data?: { message?: string } } }) => {
       toast.error(error.response?.data?.message || 'Login failed');
@@ -55,7 +55,7 @@ export const useSignup = () => {
     onSuccess: (data) => {
       toast.success('Account created successfully!');
       queryClient.setQueryData(['currentUser'], data.data.user);
-      navigate('/me');
+      navigate('/'); // Redirect to main page instead of /me
     },
     onError: (error: Error & { response?: { data?: { message?: string } } }) => {
       toast.error(error.response?.data?.message || 'Signup failed');
