@@ -1081,6 +1081,33 @@ body {
   margin-right: 1rem;
 }
 
+.nav__el--logout {
+  background: none !important;
+  border: none !important;
+  color: #f7f7f7 !important;
+  font-family: inherit !important;
+  font-size: 1.6rem !important;
+  text-transform: uppercase !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  text-decoration: none !important;
+  transition: all 0.3s !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  font-weight: 400 !important;
+}
+
+.nav__el--logout:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 0.7rem 1rem rgba(0, 0, 0, 0.08) !important;
+}
+
+.nav__el--logout:disabled {
+  opacity: 0.7 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
 .side-nav {
   list-style: none;
 }

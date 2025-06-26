@@ -1,4 +1,4 @@
-export { default as Account } from './Account';
+export { default as Account } from './Account/Account';
 export { default as Login } from './Login';
 export { default as MyTours } from './MyTours';
 export { default as NotFound } from './NotFound';

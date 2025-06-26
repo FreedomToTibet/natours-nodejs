@@ -12,6 +12,7 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 60 * 1000,
+      retry: false, // Don't retry auth requests
     },
   },
 });
@@ -29,6 +30,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/me" element={<Account />} />
+            <Route path="/account" element={<Account />} />
             <Route path="/my-tours" element={<MyTours />} />
             <Route path="*" element={<NotFound />} />
           </Route>
