@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useCurrentUser, useUpdateUser, useUpdatePassword } from '../../hooks';
 import LoadingSpinner from '../../components/LoadingSpinner';
@@ -11,8 +11,8 @@ const Account = () => {
   
   // User form state
   const [userData, setUserData] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
+    name: '',
+    email: '',
     photo: null as File | null,
   });
 
@@ -40,13 +40,15 @@ const Account = () => {
   ];
 
   // Update user data when user prop changes
-  if (user && (userData.name !== user.name || userData.email !== user.email)) {
-    setUserData({
-      name: user.name,
-      email: user.email,
-      photo: null,
-    });
-  }
+  useEffect(() => {
+    if (user) {
+      setUserData({
+        name: user.name,
+        email: user.email,
+        photo: null,
+      });
+    }
+  }, [user]);
 
   if (isLoading) {
     return <LoadingSpinner />;

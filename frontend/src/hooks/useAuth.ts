@@ -85,9 +85,10 @@ export const useUpdateUser = () => {
 
   return useMutation({
     mutationFn: (userData: UpdateUserData) => authService.updateUserData(userData),
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success('Settings updated successfully!');
-      queryClient.setQueryData(['currentUser'], data.data.user);
+      // Invalidate and refetch the currentUser query to sync with localStorage
+      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
     },
     onError: (error: Error & { response?: { data?: { message?: string } } }) => {
       toast.error(error.response?.data?.message || 'Update failed');
