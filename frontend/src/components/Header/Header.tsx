@@ -31,7 +31,7 @@ function Header() {
             <Link to="/me" className="nav__el">
               <img 
                 className="nav__user-img" 
-                src={`/img/users/${user.photo}`} 
+                src={`/img/users/${user.photo}?v=${user.photo}`} 
                 alt={`Photo of ${user.name}`} 
               />
               <span>{user.name.split(' ')[0]}</span>

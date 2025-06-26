@@ -185,7 +185,7 @@ const Account = () => {
               <div className="form__group form__photo-upload">
                 <img 
                   className="form__user-photo" 
-                  src={`/img/users/${user.photo}`} 
+                  src={`/img/users/${user.photo}?v=${encodeURIComponent(user.photo)}`} 
                   alt="User photo" 
                 />
                 <input
