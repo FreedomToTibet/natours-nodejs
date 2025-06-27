@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { useCurrentUser } from '../../hooks';
 import type { Tour } from '../../services';
 
 interface TourCtaProps {
@@ -6,6 +6,19 @@ interface TourCtaProps {
 }
 
 function TourCta({ tour }: TourCtaProps) {
+  const { data: user } = useCurrentUser();
+
+  const handleBookTour = () => {
+    if (!user) {
+      // Redirect to login if not authenticated
+      window.location.href = '/login';
+      return;
+    }
+    
+    // TODO: Implement booking functionality for authenticated users
+    console.log('Booking tour with ID:', tour._id);
+  };
+
   return (
     <section className="section-cta">
       <div className="cta">
@@ -27,9 +40,15 @@ function TourCta({ tour }: TourCtaProps) {
           <p className="cta__text">
             {tour.duration} days. 1 adventure. Infinite memories. Make it yours today!
           </p>
-          <Link to="/login" className="btn btn--green span-all-rows">
-            Log in to book tour
-          </Link>
+          
+          <button 
+            className="btn btn--green span-all-rows" 
+            id="book-tour" 
+            data-tour-id={tour._id}
+            onClick={handleBookTour}
+          >
+            {user ? 'Book tour now!' : 'Log in to book tour'}
+          </button>
         </div>
       </div>
     </section>

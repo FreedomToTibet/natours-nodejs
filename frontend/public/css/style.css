@@ -220,7 +220,6 @@ body {
 
 .btn:focus {
   outline: none;
-  background-color: #2e864b;
 }
 
 .btn--white {
