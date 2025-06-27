@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { useCurrentUser } from '../../hooks';
 import type { Tour } from '../../services';
 
@@ -7,16 +8,17 @@ interface TourCtaProps {
 
 function TourCta({ tour }: TourCtaProps) {
   const { data: user } = useCurrentUser();
+  const navigate = useNavigate();
 
   const handleBookTour = () => {
     if (!user) {
       // Redirect to login if not authenticated
-      window.location.href = '/login';
+      navigate('/login');
       return;
     }
     
-    // TODO: Implement booking functionality for authenticated users
-    console.log('Booking tour with ID:', tour._id);
+    // Navigate to booking page for this tour
+    navigate(`/booking/${tour.slug}`);
   };
 
   return (

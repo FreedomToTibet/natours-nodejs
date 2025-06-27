@@ -1,15 +1,18 @@
 import { useState, useEffect } from 'react';
-import { useCurrentUser, useUpdateUser, useUpdatePassword } from '../../hooks';
+import { useLocation } from 'react-router-dom';
+import { useCurrentUser, useUpdateUser, useUpdatePassword, useUserBookings } from '../../hooks';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import type { UpdateUserData, UpdatePasswordData } from '../../services';
 
 const Account = () => {
+  const location = useLocation();
   const { data: user, isLoading } = useCurrentUser();
+  const { data: bookings = [], isLoading: bookingsLoading } = useUserBookings();
   const updateUserMutation = useUpdateUser();
   const updatePasswordMutation = useUpdatePassword();
   
-  // Active tab state
-  const [activeTab, setActiveTab] = useState('settings');
+  // Active tab state - check for navigation state
+  const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'settings');
   
   // User form state
   const [userData, setUserData] = useState({
@@ -252,22 +255,74 @@ const Account = () => {
     </>
   );
 
-  const renderBookingsTab = () => (
-    <div className="user-view__form-container">
-      <h2 className="heading-secondary ma-bt-md">My bookings</h2>
-      <div className="empty-state">
-        <p className="empty-state__text">
-          You have no bookings yet. <br />
-          <span className="empty-state__subtext">
-            Browse our amazing tours and book your next adventure!
-          </span>
-        </p>
-        <a href="/" className="btn btn--green btn--small">
-          Browse tours
-        </a>
+  const renderBookingsTab = () => {
+    if (bookingsLoading) {
+      return (
+        <div className="user-view__form-container">
+          <h2 className="heading-secondary ma-bt-md">My bookings</h2>
+          <LoadingSpinner />
+        </div>
+      );
+    }
+
+    const allBookings = bookings || [];
+
+    if (allBookings.length === 0) {
+      return (
+        <div className="user-view__form-container">
+          <h2 className="heading-secondary ma-bt-md">My bookings</h2>
+          <div className="empty-state">
+            <p className="empty-state__text">
+              You have no bookings yet. <br />
+              <span className="empty-state__subtext">
+                Browse our amazing tours and book your next adventure!
+              </span>
+            </p>
+            <a href="/" className="btn btn--green btn--small">
+              Browse tours
+            </a>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="user-view__form-container">
+        <h2 className="heading-secondary ma-bt-md">My bookings</h2>
+        <div className="bookings-list">
+          {allBookings.map((booking) => (
+            <div key={booking._id} className="booking-card">
+              <div className="booking-card__image">
+                <img 
+                  src={`/img/tours/${booking.tour.imageCover}`} 
+                  alt={booking.tour.name}
+                />
+              </div>
+              <div className="booking-card__details">
+                <h3 className="booking-card__title">{booking.tour.name}</h3>
+                <p className="booking-card__info">
+                  <span className="booking-card__duration">{booking.tour.duration} days</span>
+                  <span className="booking-card__difficulty">{booking.tour.difficulty}</span>
+                </p>
+                <p className="booking-card__price">${booking.price}</p>
+                <p className="booking-card__date">
+                  Booked on {new Date(booking.createdAt).toLocaleDateString()}
+                </p>
+                <p className={`booking-card__status booking-card__status--${booking.paid ? 'paid' : 'unpaid'}`}>
+                  {booking.paid ? 'Paid' : 'Unpaid'}
+                </p>
+              </div>
+              <div className="booking-card__actions">
+                <a href={`/tour/${booking.tour.slug}`} className="btn btn--small btn--green">
+                  View Tour
+                </a>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderReviewsTab = () => (
     <div className="user-view__form-container">
@@ -283,19 +338,56 @@ const Account = () => {
     </div>
   );
 
-  const renderBillingTab = () => (
-    <div className="user-view__form-container">
-      <h2 className="heading-secondary ma-bt-md">Billing & payments</h2>
-      <div className="empty-state">
-        <p className="empty-state__text">
-          No payment history available. <br />
-          <span className="empty-state__subtext">
-            Your payment history and receipts will appear here after you make a booking.
-          </span>
-        </p>
+  const renderBillingTab = () => {
+    if (bookingsLoading) {
+      return (
+        <div className="user-view__form-container">
+          <h2 className="heading-secondary ma-bt-md">Billing & payments</h2>
+          <LoadingSpinner />
+        </div>
+      );
+    }
+
+    const paidBookings = (bookings || []).filter(booking => booking.paid);
+
+    if (paidBookings.length === 0) {
+      return (
+        <div className="user-view__form-container">
+          <h2 className="heading-secondary ma-bt-md">Billing & payments</h2>
+          <div className="empty-state">
+            <p className="empty-state__text">
+              No payment history available. <br />
+              <span className="empty-state__subtext">
+                Your payment history and receipts will appear here after you make a booking.
+              </span>
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="user-view__form-container">
+        <h2 className="heading-secondary ma-bt-md">Billing & payments</h2>
+        <div className="payments-list">
+          {paidBookings.map((booking) => (
+            <div key={booking._id} className="payment-card">
+              <div className="payment-card__header">
+                <h3 className="payment-card__title">{booking.tour.name}</h3>
+                <span className="payment-card__amount">${booking.price}</span>
+              </div>
+              <div className="payment-card__details">
+                <p className="payment-card__date">
+                  Paid on {new Date(booking.createdAt).toLocaleDateString()}
+                </p>
+                <p className="payment-card__method">Payment completed</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderManageToursTab = () => (
     <div className="user-view__form-container">

@@ -7,13 +7,14 @@ const router = express.Router();
 router.use(authController.protect);
 
 router.get("/checkout-session/:tourId", bookingController.getCheckoutSession);
+router.get("/my-bookings", bookingController.getMyBookings);
+router.post("/", bookingController.createBooking);
 
 router.use(authController.restrictTo("admin", "lead-guide"));
 
 router
 	.route("/")
-	.get(bookingController.getAllBookings)
-	.post(bookingController.createBooking);
+	.get(bookingController.getAllBookings);
 
 router
 	.route("/:id")

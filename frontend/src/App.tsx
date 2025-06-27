@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import GlobalStyles from './styles';
 import AppLayout from './components';
-import { Overview, Tour, Login, Signup, Account, MyTours, NotFound } from './pages';
+import { Overview, Tour, Login, Signup, Account, MyTours, NotFound, Booking } from './pages';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -27,6 +27,7 @@ function App() {
           <Route element={<AppLayout />}>
             <Route path="/" element={<Overview />} />
             <Route path="/tour/:slug" element={<Tour />} />
+            <Route path="/booking/:slug" element={<Booking />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/me" element={<Account />} />

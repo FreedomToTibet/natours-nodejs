@@ -233,8 +233,45 @@ export const webhookCheckout = (req, res, next) => {
   res.status(200).json({ received: true });
 };
 
-export const createBooking = createOne(Booking);
+export const createBooking = catchAsync(async (req, res, next) => {
+  // Check if user already has a booking for this tour
+  const existingBooking = await Booking.findOne({
+    tour: req.body.tour,
+    user: req.body.user
+  });
+
+  if (existingBooking) {
+    return next(new AppError('You already have a booking for this tour', 400));
+  }
+
+  // Create the booking
+  const doc = await Booking.create(req.body);
+
+  res.status(201).json({
+    status: 'success',
+    data: {
+      booking: doc,
+    },
+  });
+});
 export const getBooking = getOne(Booking);
 export const getAllBookings = getAll(Booking);
 export const updateBooking = updateOne(Booking);
 export const deleteBooking = deleteOne(Booking);
+
+// New controller to get bookings for the logged-in user
+export const getMyBookings = catchAsync(async (req, res, next) => {
+  // Find all bookings for the current user
+  const bookings = await Booking.find({ user: req.user.id }).populate({
+    path: 'tour',
+    select: 'name slug imageCover duration difficulty maxGroupSize summary'
+  });
+
+  res.status(200).json({
+    status: 'success',
+    results: bookings.length,
+    data: {
+      bookings,
+    },
+  });
+});
