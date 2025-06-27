@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { useCurrentUser, useUpdateUser, useUpdatePassword } from '../../hooks';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import type { UpdateUserData, UpdatePasswordData } from '../../services';
@@ -8,6 +7,9 @@ const Account = () => {
   const { data: user, isLoading } = useCurrentUser();
   const updateUserMutation = useUpdateUser();
   const updatePasswordMutation = useUpdatePassword();
+  
+  // Active tab state
+  const [activeTab, setActiveTab] = useState('settings');
   
   // User form state
   const [userData, setUserData] = useState({
@@ -25,18 +27,18 @@ const Account = () => {
 
   // Navigation items for regular users
   const userNavItems = [
-    { id: 'settings', label: 'Settings', icon: 'settings', active: true },
-    { id: 'bookings', label: 'My bookings', icon: 'briefcase', active: false },
-    { id: 'reviews', label: 'My reviews', icon: 'star', active: false },
-    { id: 'billing', label: 'Billing', icon: 'credit-card', active: false },
+    { id: 'settings', label: 'Settings', icon: 'settings' },
+    { id: 'bookings', label: 'My bookings', icon: 'briefcase' },
+    { id: 'reviews', label: 'My reviews', icon: 'star' },
+    { id: 'billing', label: 'Billing', icon: 'credit-card' },
   ];
 
   // Additional navigation items for admin users
   const adminNavItems = [
-    { id: 'manage-tours', label: 'Manage tours', icon: 'map', active: false },
-    { id: 'manage-users', label: 'Manage users', icon: 'users', active: false },
-    { id: 'manage-reviews', label: 'Manage reviews', icon: 'star', active: false },
-    { id: 'manage-bookings', label: 'Manage bookings', icon: 'briefcase', active: false },
+    { id: 'manage-tours', label: 'Manage tours', icon: 'map' },
+    { id: 'manage-users', label: 'Manage users', icon: 'users' },
+    { id: 'manage-reviews', label: 'Manage reviews', icon: 'star' },
+    { id: 'manage-bookings', label: 'Manage bookings', icon: 'briefcase' },
   ];
 
   // Update user data when user prop changes
@@ -105,28 +107,271 @@ const Account = () => {
     }
   };
 
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'settings':
+        return renderSettingsTab();
+      case 'bookings':
+        return renderBookingsTab();
+      case 'reviews':
+        return renderReviewsTab();
+      case 'billing':
+        return renderBillingTab();
+      case 'manage-tours':
+        return renderManageToursTab();
+      case 'manage-users':
+        return renderManageUsersTab();
+      case 'manage-reviews':
+        return renderManageReviewsTab();
+      case 'manage-bookings':
+        return renderManageBookingsTab();
+      default:
+        return renderSettingsTab();
+    }
+  };
+
+  const renderSettingsTab = () => (
+    <>
+      <div className="user-view__form-container">
+        <h2 className="heading-secondary ma-bt-md">Your account settings</h2>
+        
+        <form 
+          className="form form-user-data" 
+          onSubmit={handleUserDataSubmit}
+        >
+          <div className="form__group">
+            <label className="form__label" htmlFor="name">Name</label>
+            <input
+              id="name"
+              className="form__input"
+              type="text"
+              value={userData.name}
+              onChange={(e) => setUserData(prev => ({ ...prev, name: e.target.value }))}
+              required
+              name="name"
+            />
+          </div>
+          <div className="form__group ma-bt-md">
+            <label className="form__label" htmlFor="email">Email address</label>
+            <input
+              id="email"
+              className="form__input"
+              type="email"
+              value={userData.email}
+              onChange={(e) => setUserData(prev => ({ ...prev, email: e.target.value }))}
+              required
+              name="email"
+            />
+          </div>
+          <div className="form__group form__photo-upload">
+            <img 
+              className="form__user-photo" 
+              src={`/img/users/${user.photo}?v=${encodeURIComponent(user.photo)}`} 
+              alt="User photo" 
+            />
+            <input
+              className="form__upload"
+              type="file"
+              accept="image/*"
+              id="photo"
+              name="photo"
+              onChange={handlePhotoChange}
+            />
+            <label htmlFor="photo">Choose new photo</label>
+          </div>
+          <div className="form__group right">
+            <button 
+              className="btn btn--small btn--green"
+              type="submit"
+              disabled={updateUserMutation.isPending}
+            >
+              {updateUserMutation.isPending ? 'Saving...' : 'Save settings'}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div className="line">&nbsp;</div>
+
+      <div className="user-view__form-container">
+        <h2 className="heading-secondary ma-bt-md">Password change</h2>
+        <form 
+          className="form form-user-password"
+          onSubmit={handlePasswordSubmit}
+        >
+          <div className="form__group">
+            <label className="form__label" htmlFor="password-current">Current password</label>
+            <input
+              id="password-current"
+              className="form__input"
+              type="password"
+              placeholder="••••••••"
+              value={passwordData.passwordCurrent}
+              onChange={(e) => setPasswordData(prev => ({ ...prev, passwordCurrent: e.target.value }))}
+              required
+              minLength={8}
+            />
+          </div>
+          <div className="form__group">
+            <label className="form__label" htmlFor="password">New password</label>
+            <input
+              id="password"
+              className="form__input"
+              type="password"
+              placeholder="••••••••"
+              value={passwordData.password}
+              onChange={(e) => setPasswordData(prev => ({ ...prev, password: e.target.value }))}
+              required
+              minLength={8}
+            />
+          </div>
+          <div className="form__group ma-bt-lg">
+            <label className="form__label" htmlFor="password-confirm">Confirm password</label>
+            <input
+              id="password-confirm"
+              className="form__input"
+              type="password"
+              placeholder="••••••••"
+              value={passwordData.passwordConfirm}
+              onChange={(e) => setPasswordData(prev => ({ ...prev, passwordConfirm: e.target.value }))}
+              required
+              minLength={8}
+            />
+          </div>
+          <div className="form__group right">
+            <button 
+              className="btn btn--small btn--green btn--save-password"
+              type="submit"
+              disabled={updatePasswordMutation.isPending}
+            >
+              {updatePasswordMutation.isPending ? 'Saving...' : 'Save password'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </>
+  );
+
+  const renderBookingsTab = () => (
+    <div className="user-view__form-container">
+      <h2 className="heading-secondary ma-bt-md">My bookings</h2>
+      <div className="empty-state">
+        <p className="empty-state__text">
+          You have no bookings yet. <br />
+          <span className="empty-state__subtext">
+            Browse our amazing tours and book your next adventure!
+          </span>
+        </p>
+        <a href="/" className="btn btn--green btn--small">
+          Browse tours
+        </a>
+      </div>
+    </div>
+  );
+
+  const renderReviewsTab = () => (
+    <div className="user-view__form-container">
+      <h2 className="heading-secondary ma-bt-md">My reviews</h2>
+      <div className="empty-state">
+        <p className="empty-state__text">
+          You haven't written any reviews yet. <br />
+          <span className="empty-state__subtext">
+            Share your experience with other travelers by reviewing the tours you've been on!
+          </span>
+        </p>
+      </div>
+    </div>
+  );
+
+  const renderBillingTab = () => (
+    <div className="user-view__form-container">
+      <h2 className="heading-secondary ma-bt-md">Billing & payments</h2>
+      <div className="empty-state">
+        <p className="empty-state__text">
+          No payment history available. <br />
+          <span className="empty-state__subtext">
+            Your payment history and receipts will appear here after you make a booking.
+          </span>
+        </p>
+      </div>
+    </div>
+  );
+
+  const renderManageToursTab = () => (
+    <div className="user-view__form-container">
+      <h2 className="heading-secondary ma-bt-md">Manage tours</h2>
+      <div className="empty-state">
+        <p className="empty-state__text">
+          Tour management dashboard <br />
+          <span className="empty-state__subtext">
+            Create, edit, and manage all tours in the system.
+          </span>
+        </p>
+      </div>
+    </div>
+  );
+
+  const renderManageUsersTab = () => (
+    <div className="user-view__form-container">
+      <h2 className="heading-secondary ma-bt-md">Manage users</h2>
+      <div className="empty-state">
+        <p className="empty-state__text">
+          User management dashboard <br />
+          <span className="empty-state__subtext">
+            View and manage all user accounts in the system.
+          </span>
+        </p>
+      </div>
+    </div>
+  );
+
+  const renderManageReviewsTab = () => (
+    <div className="user-view__form-container">
+      <h2 className="heading-secondary ma-bt-md">Manage reviews</h2>
+      <div className="empty-state">
+        <p className="empty-state__text">
+          Review management dashboard <br />
+          <span className="empty-state__subtext">
+            Moderate and manage all reviews in the system.
+          </span>
+        </p>
+      </div>
+    </div>
+  );
+
+  const renderManageBookingsTab = () => (
+    <div className="user-view__form-container">
+      <h2 className="heading-secondary ma-bt-md">Manage bookings</h2>
+      <div className="empty-state">
+        <p className="empty-state__text">
+          Booking management dashboard <br />
+          <span className="empty-state__subtext">
+            View and manage all bookings in the system.
+          </span>
+        </p>
+      </div>
+    </div>
+  );
+
   return (
     <main className="main">
       <div className="user-view">
         <nav className="user-view__menu">
           <ul className="side-nav">
             {userNavItems.map((item) => (
-              <li key={item.id} className={item.active ? 'side-nav--active' : ''}>
-                {item.id === 'bookings' ? (
-                  <Link to="/my-tours">
-                    <svg>
-                      <use xlinkHref={`/img/icons.svg#icon-${item.icon}`}></use>
-                    </svg>
-                    {item.label}
-                  </Link>
-                ) : (
-                  <a href="#" onClick={(e) => e.preventDefault()}>
-                    <svg>
-                      <use xlinkHref={`/img/icons.svg#icon-${item.icon}`}></use>
-                    </svg>
-                    {item.label}
-                  </a>
-                )}
+              <li key={item.id} className={activeTab === item.id ? 'side-nav--active' : ''}>
+                <a 
+                  href="#" 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setActiveTab(item.id);
+                  }}
+                >
+                  <svg>
+                    <use xlinkHref={`/img/icons.svg#icon-${item.icon}`}></use>
+                  </svg>
+                  {item.label}
+                </a>
               </li>
             ))}
           </ul>
@@ -136,8 +381,14 @@ const Account = () => {
               <h5 className="admin-nav__heading">Admin</h5>
               <ul className="side-nav">
                 {adminNavItems.map((item) => (
-                  <li key={item.id}>
-                    <a href="#" onClick={(e) => e.preventDefault()}>
+                  <li key={item.id} className={activeTab === item.id ? 'side-nav--active' : ''}>
+                    <a 
+                      href="#" 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setActiveTab(item.id);
+                      }}
+                    >
                       <svg>
                         <use xlinkHref={`/img/icons.svg#icon-${item.icon}`}></use>
                       </svg>
@@ -151,123 +402,7 @@ const Account = () => {
         </nav>
 
         <div className="user-view__content">
-          <div className="user-view__form-container">
-            <h2 className="heading-secondary ma-bt-md">Your account settings</h2>
-            
-            <form 
-              className="form form-user-data" 
-              onSubmit={handleUserDataSubmit}
-            >
-              <div className="form__group">
-                <label className="form__label" htmlFor="name">Name</label>
-                <input
-                  id="name"
-                  className="form__input"
-                  type="text"
-                  value={userData.name}
-                  onChange={(e) => setUserData(prev => ({ ...prev, name: e.target.value }))}
-                  required
-                  name="name"
-                />
-              </div>
-              <div className="form__group ma-bt-md">
-                <label className="form__label" htmlFor="email">Email address</label>
-                <input
-                  id="email"
-                  className="form__input"
-                  type="email"
-                  value={userData.email}
-                  onChange={(e) => setUserData(prev => ({ ...prev, email: e.target.value }))}
-                  required
-                  name="email"
-                />
-              </div>
-              <div className="form__group form__photo-upload">
-                <img 
-                  className="form__user-photo" 
-                  src={`/img/users/${user.photo}?v=${encodeURIComponent(user.photo)}`} 
-                  alt="User photo" 
-                />
-                <input
-                  className="form__upload"
-                  type="file"
-                  accept="image/*"
-                  id="photo"
-                  name="photo"
-                  onChange={handlePhotoChange}
-                />
-                <label htmlFor="photo">Choose new photo</label>
-              </div>
-              <div className="form__group right">
-                <button 
-                  className="btn btn--small btn--green"
-                  type="submit"
-                  disabled={updateUserMutation.isPending}
-                >
-                  {updateUserMutation.isPending ? 'Saving...' : 'Save settings'}
-                </button>
-              </div>
-            </form>
-          </div>
-
-          <div className="line">&nbsp;</div>
-
-          <div className="user-view__form-container">
-            <h2 className="heading-secondary ma-bt-md">Password change</h2>
-            <form 
-              className="form form-user-password"
-              onSubmit={handlePasswordSubmit}
-            >
-              <div className="form__group">
-                <label className="form__label" htmlFor="password-current">Current password</label>
-                <input
-                  id="password-current"
-                  className="form__input"
-                  type="password"
-                  placeholder="••••••••"
-                  value={passwordData.passwordCurrent}
-                  onChange={(e) => setPasswordData(prev => ({ ...prev, passwordCurrent: e.target.value }))}
-                  required
-                  minLength={8}
-                />
-              </div>
-              <div className="form__group">
-                <label className="form__label" htmlFor="password">New password</label>
-                <input
-                  id="password"
-                  className="form__input"
-                  type="password"
-                  placeholder="••••••••"
-                  value={passwordData.password}
-                  onChange={(e) => setPasswordData(prev => ({ ...prev, password: e.target.value }))}
-                  required
-                  minLength={8}
-                />
-              </div>
-              <div className="form__group ma-bt-lg">
-                <label className="form__label" htmlFor="password-confirm">Confirm password</label>
-                <input
-                  id="password-confirm"
-                  className="form__input"
-                  type="password"
-                  placeholder="••••••••"
-                  value={passwordData.passwordConfirm}
-                  onChange={(e) => setPasswordData(prev => ({ ...prev, passwordConfirm: e.target.value }))}
-                  required
-                  minLength={8}
-                />
-              </div>
-              <div className="form__group right">
-                <button 
-                  className="btn btn--small btn--green btn--save-password"
-                  type="submit"
-                  disabled={updatePasswordMutation.isPending}
-                >
-                  {updatePasswordMutation.isPending ? 'Saving...' : 'Save password'}
-                </button>
-              </div>
-            </form>
-          </div>
+          {renderTabContent()}
         </div>
       </div>
     </main>

@@ -857,6 +857,8 @@ body {
   -ms-flex: 1;
   flex: 1;
   padding: 7rem 0;
+  min-height: 50rem;
+  transition: all 0.3s ease;
 }
 .user-view__form-container {
   max-width: 68rem;
@@ -1483,4 +1485,30 @@ body {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* Empty State Styles for Account Tabs */
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  margin: 2rem 0;
+}
+
+.empty-state__text {
+  font-size: 1.6rem;
+  color: #999;
+  margin-bottom: 2rem;
+  line-height: 1.8;
+}
+
+.empty-state__subtext {
+  font-size: 1.4rem;
+  color: #aaa;
+  font-weight: 300;
+}
+
+/* Enhanced tab transition */
+.user-view__content {
+  min-height: 50rem;
+  transition: all 0.3s ease;
 }
