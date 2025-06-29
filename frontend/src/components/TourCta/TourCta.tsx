@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useCurrentUser } from '../../hooks';
+import { useCurrentUser, useUserBookingForTour } from '../../hooks';
 import type { Tour } from '../../services';
 
 interface TourCtaProps {
@@ -8,6 +8,7 @@ interface TourCtaProps {
 
 function TourCta({ tour }: TourCtaProps) {
   const { data: user } = useCurrentUser();
+  const { data: existingBooking, isLoading: bookingLoading } = useUserBookingForTour(user ? tour._id : '');
   const navigate = useNavigate();
 
   const handleBookTour = () => {
@@ -17,8 +18,29 @@ function TourCta({ tour }: TourCtaProps) {
       return;
     }
     
-    // Navigate to booking page for this tour
-    navigate(`/booking/${tour.slug}`);
+    if (existingBooking) {
+      // Navigate to booking management page
+      navigate(`/booking-manage/${existingBooking._id}`);
+    } else {
+      // Navigate to booking page for this tour
+      navigate(`/booking/${tour.slug}`);
+    }
+  };
+
+  const getButtonText = () => {
+    if (!user) return 'Log in to book tour';
+    if (bookingLoading) return 'Checking booking...';
+    if (existingBooking) {
+      return existingBooking.paid ? 'Manage booking' : 'Complete payment';
+    }
+    return 'Book tour now!';
+  };
+
+  const getButtonClass = () => {
+    if (!user || !existingBooking) return 'btn btn--green span-all-rows';
+    return existingBooking.paid 
+      ? 'btn btn--blue span-all-rows' 
+      : 'btn btn--orange span-all-rows';
   };
 
   return (
@@ -44,12 +66,13 @@ function TourCta({ tour }: TourCtaProps) {
           </p>
           
           <button 
-            className="btn btn--green span-all-rows" 
+            className={getButtonClass()}
             id="book-tour" 
             data-tour-id={tour._id}
             onClick={handleBookTour}
+            disabled={bookingLoading}
           >
-            {user ? 'Book tour now!' : 'Log in to book tour'}
+            {getButtonText()}
           </button>
         </div>
       </div>

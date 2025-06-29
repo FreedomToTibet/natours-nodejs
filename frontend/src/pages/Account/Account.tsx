@@ -301,7 +301,7 @@ const Account = () => {
               <div className="booking-card__details">
                 <h3 className="booking-card__title">{booking.tour.name}</h3>
                 <p className="booking-card__info">
-                  <span className="booking-card__duration">{booking.tour.duration} days</span>
+                  <span className="booking-card__duration">{booking.tour.duration} days </span>
                   <span className="booking-card__difficulty">{booking.tour.difficulty}</span>
                 </p>
                 <p className="booking-card__price">${booking.price}</p>
@@ -316,6 +316,11 @@ const Account = () => {
                 <a href={`/tour/${booking.tour.slug}`} className="btn btn--small btn--green">
                   View Tour
                 </a>
+                {!booking.paid && (
+                  <a href={`/booking-manage/${booking._id}`} className="btn btn--small btn--blue">
+                    Manage Booking
+                  </a>
+                )}
               </div>
             </div>
           ))}

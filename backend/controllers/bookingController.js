@@ -3,7 +3,7 @@ import Stripe from 'stripe';
 import catchAsync from '../utils/catchAsync.js';
 import AppError from '../utils/appError.js';
 import {
-  createOne,
+  // createOne,
   getOne,
   getAll,
   updateOne,
@@ -273,5 +273,75 @@ export const getMyBookings = catchAsync(async (req, res, next) => {
     data: {
       bookings,
     },
+  });
+});
+
+// User-specific booking controllers that check ownership
+export const getUserBooking = catchAsync(async (req, res, next) => {
+  const booking = await Booking.findOne({
+    _id: req.params.id,
+    user: req.user.id
+  }).populate({
+    path: 'tour',
+    select: 'name slug imageCover duration difficulty maxGroupSize summary'
+  });
+
+  if (!booking) {
+    return next(new AppError('No booking found with that ID', 404));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      booking,
+    },
+  });
+});
+
+export const updateUserBooking = catchAsync(async (req, res, next) => {
+  // Only allow updating certain fields for user bookings
+  const allowedFields = ['paid'];
+  const updateData = {};
+
+  Object.keys(req.body).forEach(key => {
+    if (allowedFields.includes(key)) {
+      updateData[key] = req.body[key];
+    }
+  });
+
+  const booking = await Booking.findOneAndUpdate(
+    { _id: req.params.id, user: req.user.id },
+    updateData,
+    { new: true, runValidators: true }
+  ).populate({
+    path: 'tour',
+    select: 'name slug imageCover duration difficulty maxGroupSize summary'
+  });
+
+  if (!booking) {
+    return next(new AppError('No booking found with that ID', 404));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      booking,
+    },
+  });
+});
+
+export const deleteUserBooking = catchAsync(async (req, res, next) => {
+  const booking = await Booking.findOneAndDelete({
+    _id: req.params.id,
+    user: req.user.id
+  });
+
+  if (!booking) {
+    return next(new AppError('No booking found with that ID', 404));
+  }
+
+  res.status(204).json({
+    status: 'success',
+    data: null,
   });
 });

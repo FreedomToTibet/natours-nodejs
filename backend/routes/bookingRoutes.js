@@ -10,6 +10,13 @@ router.get("/checkout-session/:tourId", bookingController.getCheckoutSession);
 router.get("/my-bookings", bookingController.getMyBookings);
 router.post("/", bookingController.createBooking);
 
+// Allow users to manage their own bookings
+router
+	.route("/:id")
+	.get(bookingController.getUserBooking)
+	.patch(bookingController.updateUserBooking)
+	.delete(bookingController.deleteUserBooking);
+
 router.use(authController.restrictTo("admin", "lead-guide"));
 
 router
@@ -17,7 +24,7 @@ router
 	.get(bookingController.getAllBookings);
 
 router
-	.route("/:id")
+	.route("/admin/:id")
 	.get(bookingController.getBooking)
 	.patch(bookingController.updateBooking)
 	.delete(bookingController.deleteBooking);

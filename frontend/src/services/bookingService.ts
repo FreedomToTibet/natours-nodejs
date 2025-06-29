@@ -55,6 +55,29 @@ export const bookingService = {
     return response.data.data.bookings;
   },
 
+  // Get specific booking by ID
+  async getBooking(bookingId: string): Promise<Booking> {
+    const response = await api.get<BookingResponse>(`/bookings/${bookingId}`);
+    return response.data.data.booking;
+  },
+
+  // Pay for existing booking
+  async payBooking(bookingId: string): Promise<Booking> {
+    const response = await api.patch<BookingResponse>(`/bookings/${bookingId}`, { paid: true });
+    return response.data.data.booking;
+  },
+
+  // Cancel booking
+  async cancelBooking(bookingId: string): Promise<void> {
+    await api.delete(`/bookings/${bookingId}`);
+  },
+
+  // Check if user has booking for a tour
+  async getUserBookingForTour(tourId: string): Promise<Booking | null> {
+    const bookings = await this.getUserBookings();
+    return bookings.find(booking => booking.tour._id === tourId) || null;
+  },
+
   // Get all bookings (admin only)
   async getAllBookings(): Promise<Booking[]> {
     const response = await api.get<BookingsResponse>('/bookings');
