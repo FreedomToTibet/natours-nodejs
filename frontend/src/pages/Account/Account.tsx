@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useCurrentUser, useUpdateUser, useUpdatePassword, useUserBookings } from '../../hooks';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import { formatCurrency } from '../../utils';
 import type { UpdateUserData, UpdatePasswordData } from '../../services';
 
 const Account = () => {
@@ -304,7 +305,7 @@ const Account = () => {
                   <span className="booking-card__duration">{booking.tour.duration} days </span>
                   <span className="booking-card__difficulty">{booking.tour.difficulty}</span>
                 </p>
-                <p className="booking-card__price">${booking.price}</p>
+                <p className="booking-card__price">{formatCurrency(booking.price)}</p>
                 <p className="booking-card__date">
                   Booked on {new Date(booking.createdAt).toLocaleDateString()}
                 </p>
@@ -379,7 +380,7 @@ const Account = () => {
             <div key={booking._id} className="payment-card">
               <div className="payment-card__header">
                 <h3 className="payment-card__title">{booking.tour.name}</h3>
-                <span className="payment-card__amount">${booking.price}</span>
+                <span className="payment-card__amount">{formatCurrency(booking.price)}</span>
               </div>
               <div className="payment-card__details">
                 <p className="payment-card__date">

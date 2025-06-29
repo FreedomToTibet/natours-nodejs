@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import type { Tour } from '../../services';
+import { formatCurrency } from '../../utils';
 
 interface TourCardProps {
   tour: Tour;
@@ -11,16 +12,6 @@ function TourCard({ tour }: TourCardProps) {
     if (!startDates || startDates.length === 0) return 'Date TBA';
     const date = new Date(startDates[0]);
     return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-  };
-
-  // Format price
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(price);
   };
 
   return (
@@ -70,7 +61,7 @@ function TourCard({ tour }: TourCardProps) {
       </div>
       <div className="card__footer">
         <p>
-          <span className="card__footer-value">{formatPrice(tour.price)}</span>
+          <span className="card__footer-value">{formatCurrency(tour.price)}</span>
           <span className="card__footer-text"> per person</span>
         </p>
         <p className="card__ratings">

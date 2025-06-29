@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useCurrentUser, useTour, useCreateBooking } from '../../hooks';
 import { LoadingSpinner } from '../../components';
+import { formatCurrency } from '../../utils';
 
 const Booking = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -105,7 +106,7 @@ const Booking = () => {
                 <h3 className="heading-tertiary ma-bt-sm">Booking Summary</h3>
                 <div className="booking-price">
                   <span className="booking-price-label">Tour Price:</span>
-                  <span className="booking-price-amount">${tour.price}</span>
+                  <span className="booking-price-amount">{formatCurrency(tour.price)}</span>
                 </div>
               </div>
 
@@ -142,8 +143,8 @@ const Booking = () => {
                   {createBookingMutation.isPending 
                     ? 'Processing...' 
                     : bookAndPay 
-                      ? `Pay $${tour.price}` 
-                      : `Book for $${tour.price}`
+                      ? `Pay ${formatCurrency(tour.price)}` 
+                      : `Book for ${formatCurrency(tour.price)}`
                   }
                 </button>
                 <button 

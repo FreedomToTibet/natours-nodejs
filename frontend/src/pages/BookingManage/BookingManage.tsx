@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useBooking, usePayBooking, useCancelBooking } from '../../hooks';
 import { LoadingSpinner } from '../../components';
+import { formatCurrency } from '../../utils';
 
 const BookingManage = () => {
   const { bookingId } = useParams<{ bookingId: string }>();
@@ -112,7 +113,7 @@ const BookingManage = () => {
                   </div>
                   <div className="booking-detail">
                     <span className="booking-detail-label">Price:</span>
-                    <span className="booking-detail-value">${booking.price}</span>
+                    <span className="booking-detail-value">{formatCurrency(booking.price)}</span>
                   </div>
                   <div className="booking-detail">
                     <span className="booking-detail-label">Payment Status:</span>
@@ -136,7 +137,7 @@ const BookingManage = () => {
                   >
                     {payBookingMutation.isPending 
                       ? 'Processing Payment...' 
-                      : `Pay $${booking.price}`
+                      : `Pay ${formatCurrency(booking.price)}`
                     }
                   </button>
                 </div>
