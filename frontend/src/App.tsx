@@ -47,7 +47,7 @@ function App() {
         rtl={false}
         pauseOnFocusLoss
         draggable
-        pauseOnHover={false}
+        pauseOnHover
 				toastStyle={{ 
 					color: '#55c57a',
 					fontSize: '1.6rem',

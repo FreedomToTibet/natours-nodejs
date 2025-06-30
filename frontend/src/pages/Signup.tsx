@@ -9,16 +9,55 @@ function Signup() {
     password: '',
     passwordConfirm: '',
   });
+  
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const signupMutation = useSignup();
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required';
+    }
+
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Email is invalid';
+    }
+
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
+    }
+
+    if (!formData.passwordConfirm) {
+      newErrors.passwordConfirm = 'Password confirmation is required';
+    } else if (formData.password !== formData.passwordConfirm) {
+      newErrors.passwordConfirm = 'Passwords do not match';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    signupMutation.mutate(formData);
+    
+    if (validateForm()) {
+      signupMutation.mutate(formData);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
   };
 
   return (
@@ -32,7 +71,7 @@ function Signup() {
             </label>
             <input
               id="name"
-              className="form__input"
+              className={`form__input ${errors.name ? 'form__input--error' : ''}`}
               type="text"
               name="name"
               placeholder="John Doe"
@@ -40,6 +79,7 @@ function Signup() {
               onChange={handleChange}
               required
             />
+            {errors.name && <p className="form__error">{errors.name}</p>}
           </div>
           <div className="form__group">
             <label className="form__label" htmlFor="email">
@@ -55,6 +95,7 @@ function Signup() {
               onChange={handleChange}
               required
             />
+            {errors.email && <p className="form__error">{errors.email}</p>}
           </div>
           <div className="form__group ma-bt-md">
             <label className="form__label" htmlFor="password">
@@ -71,6 +112,7 @@ function Signup() {
               required
               minLength={8}
             />
+            {errors.password && <p className="form__error">{errors.password}</p>}
           </div>
           <div className="form__group ma-bt-md">
             <label className="form__label" htmlFor="passwordConfirm">
@@ -87,6 +129,7 @@ function Signup() {
               required
               minLength={8}
             />
+            {errors.passwordConfirm && <p className="form__error">{errors.passwordConfirm}</p>}
           </div>
           <div className="form__group">
             <button 

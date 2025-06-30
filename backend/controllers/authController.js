@@ -45,13 +45,19 @@ export const signup = catchAsync(async (req, res) => {
     passwordConfirm: req.body.passwordConfirm,
     role: req.body.role,
   });
-  const url = `${req.protocol}://${req.get('host')}/me`;
-  try {
-    await new Email(newUser, url).sendWelcome();
-  } catch (err) {
-    console.log('Email sending failed, but continuing signup process');
-  }
+  
+  // Send response immediately, then try to send email asynchronously
   createSendToken(newUser, 201, res);
+  
+  // Send welcome email asynchronously without blocking the response
+  const url = `${req.protocol}://${req.get('host')}/me`;
+  setImmediate(async () => {
+    try {
+      await new Email(newUser, url).sendWelcome();
+    } catch (err) {
+      console.log('Email sending failed (async):', err.message);
+    }
+  });
 });
 
 export const login = catchAsync(async (req, res, next) => {
