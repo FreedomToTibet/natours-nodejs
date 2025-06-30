@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useCurrentUser, useUpdateUser, useUpdatePassword, useUserBookings } from '../../hooks';
+import { useCurrentUser, useUpdateUser, useUpdatePassword, useUserBookings, useUserReviews } from '../../hooks';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import { StarRating } from '../../components';
 import { formatCurrency } from '../../utils';
 import type { UpdateUserData, UpdatePasswordData } from '../../services';
 
@@ -9,6 +10,7 @@ const Account = () => {
   const location = useLocation();
   const { data: user, isLoading } = useCurrentUser();
   const { data: bookings = [], isLoading: bookingsLoading } = useUserBookings();
+  const { data: reviews = [], isLoading: reviewsLoading } = useUserReviews();
   const updateUserMutation = useUpdateUser();
   const updatePasswordMutation = useUpdatePassword();
   
@@ -330,19 +332,72 @@ const Account = () => {
     );
   };
 
-  const renderReviewsTab = () => (
-    <div className="user-view__form-container">
-      <h2 className="heading-secondary ma-bt-md">My reviews</h2>
-      <div className="empty-state">
-        <p className="empty-state__text">
-          You haven't written any reviews yet. <br />
-          <span className="empty-state__subtext">
-            Share your experience with other travelers by reviewing the tours you've been on!
-          </span>
-        </p>
+  const renderReviewsTab = () => {
+    if (reviewsLoading) {
+      return (
+        <div className="user-view__form-container">
+          <h2 className="heading-secondary ma-bt-md">My reviews</h2>
+          <LoadingSpinner />
+        </div>
+      );
+    }
+
+    if (reviews.length === 0) {
+      return (
+        <div className="user-view__form-container">
+          <h2 className="heading-secondary ma-bt-md">My reviews</h2>
+          <div className="empty-state">
+            <p className="empty-state__text">
+              You haven't written any reviews yet. <br />
+              <span className="empty-state__subtext">
+                Share your experience with other travelers by reviewing the tours you've been on!
+              </span>
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="user-view__form-container">
+        <h2 className="heading-secondary ma-bt-md">My reviews</h2>
+        <div className="bookings-list">
+          {reviews.map((review) => (
+            <div key={review._id} className="booking-card">
+              <div className="booking-card__image">
+                <img 
+                  src={`/img/tours/${review.tour.imageCover}`} 
+                  alt={review.tour.name}
+                />
+              </div>
+              <div className="booking-card__details">
+                <h3 className="booking-card__title">{review.tour.name}</h3>
+                <p className="booking-card__info">
+                  <span className="booking-card__duration">{review.tour.duration} days </span>
+                  <span className="booking-card__difficulty">{review.tour.difficulty}</span>
+                </p>
+                <p className="booking-card__price">{formatCurrency(review.tour.price)}</p>
+                <p className="booking-card__date">
+                  Reviewed on {new Date(review.createdAt).toLocaleDateString()}
+                </p>
+                <div className="booking-card__review">
+                  <div className="booking-card__rating">
+                    <StarRating rating={review.rating} readonly size="small" />
+                  </div>
+                  <p className="booking-card__review-text">"{review.review}"</p>
+                </div>
+              </div>
+              <div className="booking-card__actions">
+                <a href={`/tour/${review.tour.slug}`} className="btn btn--small btn--green">
+                  View Tour
+                </a>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderBillingTab = () => {
     if (bookingsLoading) {
