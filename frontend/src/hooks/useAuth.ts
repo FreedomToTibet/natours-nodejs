@@ -6,7 +6,8 @@ import type {
   LoginCredentials, 
   SignupData, 
   UpdateUserData, 
-  UpdatePasswordData 
+  UpdatePasswordData,
+  ResetPasswordData
 } from '../services';
 
 // Hook for getting current user
@@ -105,6 +106,38 @@ export const useUpdatePassword = () => {
     },
     onError: (error: Error & { response?: { data?: { message?: string } } }) => {
       toast.error(error.response?.data?.message || 'Password update failed');
+    },
+  });
+};
+
+// Hook for forgot password
+export const useForgotPassword = () => {
+  return useMutation({
+    mutationFn: (email: string) => authService.forgotPassword(email),
+    onSuccess: () => {
+      toast.success('Password reset email sent! Check your inbox.');
+    },
+    onError: (error: Error & { response?: { data?: { message?: string } } }) => {
+      toast.error(error.response?.data?.message || 'Failed to send reset email');
+    },
+  });
+};
+
+// Hook for reset password
+export const useResetPassword = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ token, passwordData }: { token: string; passwordData: ResetPasswordData }) => 
+      authService.resetPassword(token, passwordData),
+    onSuccess: (data) => {
+      toast.success('Password reset successfully! You are now logged in.');
+      queryClient.setQueryData(['currentUser'], data.data.user);
+      navigate('/'); // Redirect to main page
+    },
+    onError: (error: Error & { response?: { data?: { message?: string } } }) => {
+      toast.error(error.response?.data?.message || 'Password reset failed');
     },
   });
 };

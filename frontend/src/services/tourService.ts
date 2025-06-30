@@ -72,9 +72,7 @@ export interface TourResponse {
 // Get all tours
 export const getAllTours = async (): Promise<Tour[]> => {
   try {
-    console.log('Making API call to:', '/tours');
     const response = await api.get('/tours');
-    console.log('API response:', response.data);
     
     // Based on actual API response: { status, results, data: { data: [...] } }
     const tours = response.data?.data?.data;

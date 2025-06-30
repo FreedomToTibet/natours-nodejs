@@ -50,7 +50,7 @@ export const signup = catchAsync(async (req, res) => {
   createSendToken(newUser, 201, res);
   
   // Send welcome email asynchronously without blocking the response
-  const url = `${req.protocol}://${req.get('host')}/me`;
+  const url = `${process.env.FRONTEND_URL}/me`;
   setImmediate(async () => {
     try {
       await new Email(newUser, url).sendWelcome();
@@ -179,9 +179,7 @@ export const forgotPassword = catchAsync(async (req, res, next) => {
 
   // 3) Send it to user's email
   try {
-    const resetURL = `${req.protocol}://${req.get('host')}${
-      process.env.RESET_PASSWORD_URL
-    }/${resetToken}`;
+    const resetURL = `${process.env.FRONTEND_URL}${process.env.RESET_PASSWORD_URL}/${resetToken}`;
 
     await new Email(user, resetURL).sendPasswordReset();
 

@@ -274,6 +274,7 @@ body {
   padding: 3px;
   -webkit-transition: all 0.2s;
   transition: all 0.2s;
+	font-size: 1.4rem;
 }
 
 .btn-text:hover {

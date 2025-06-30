@@ -55,6 +55,11 @@ function Login() {
               {loginMutation.isPending ? 'Logging in...' : 'Log In'}
             </button>
           </div>
+          <div className="form__group" style={{ textAlign: 'center', marginTop: '1rem' }}>
+            <Link to="/forgot-password" className="btn-text">
+              Forgot your password?
+            </Link>
+          </div>
         </form>        
         <div className="form-bottom-section">
           <p className="form-bottom-text">

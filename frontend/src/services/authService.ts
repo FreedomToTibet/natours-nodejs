@@ -33,6 +33,15 @@ export interface UpdatePasswordData {
   passwordConfirm: string;
 }
 
+export interface ForgotPasswordData {
+  email: string;
+}
+
+export interface ResetPasswordData {
+  password: string;
+  passwordConfirm: string;
+}
+
 export interface AuthResponse {
   status: string;
   token: string;
@@ -130,6 +139,25 @@ export const authService = {
       localStorage.setItem('user', JSON.stringify(response.data.data.user));
     }
 
+    return response.data;
+  },
+
+  // Forgot password - send reset email
+  async forgotPassword(email: string): Promise<{ status: string; message: string }> {
+    const response = await api.post<{ status: string; message: string }>('/users/forgotPassword', { email });
+    return response.data;
+  },
+
+  // Reset password with token
+  async resetPassword(token: string, passwordData: ResetPasswordData): Promise<AuthResponse> {
+    const response = await api.patch<AuthResponse>(`/users/resetPassword/${token}`, passwordData);
+    
+    // Store token in localStorage after successful reset
+    if (response.data.token) {
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.data.user));
+    }
+    
     return response.data;
   },
 };
