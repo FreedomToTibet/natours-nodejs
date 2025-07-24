@@ -244,3 +244,21 @@ export const getDistances = catchAsync(async (req, res, next) => {
 			},
 		});
 });
+
+// Get tours where current user is a guide
+export const getMyGuideTours = catchAsync(async (req, res, next) => {
+	const tours = await Tour.find({ guides: req.user.id })
+		.populate({
+			path: 'guides',
+			select: 'name photo role email'
+		})
+		.select('-__v');
+
+	res.status(200).json({
+		status: 'success',
+		results: tours.length,
+		data: {
+			tours
+		}
+	});
+});

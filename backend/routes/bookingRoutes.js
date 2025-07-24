@@ -10,6 +10,13 @@ router.get("/checkout-session/:tourId", bookingController.getCheckoutSession);
 router.get("/my-bookings", bookingController.getMyBookings);
 router.post("/", bookingController.createBooking);
 
+// Get tour participants for guides
+router.get(
+  "/tour-participants/:tourId", 
+  authController.restrictTo("guide", "lead-guide", "admin"),
+  bookingController.getTourParticipants
+);
+
 // Allow users to manage their own bookings
 router
 	.route("/:id")

@@ -23,6 +23,15 @@ router
     tourController.getMonthlyPlan
   );
 
+// Get tours assigned to current guide
+router
+  .route('/my-guide-tours')
+  .get(
+    authController.protect,
+    authController.restrictTo('guide', 'lead-guide'),
+    tourController.getMyGuideTours
+  );
+
 router
 	.route('/tours-within/:distance/center/:latlng/unit/:unit')
 	.get(tourController.getToursWithin);

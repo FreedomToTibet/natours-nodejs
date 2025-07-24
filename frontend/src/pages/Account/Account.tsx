@@ -39,6 +39,13 @@ const Account = () => {
     { id: 'billing', label: 'Billing', icon: 'credit-card' },
   ];
 
+  // Navigation items for guides and lead-guides
+  const guideNavItems = [
+    { id: 'settings', label: 'Settings', icon: 'settings' },
+    { id: 'guide-tours', label: 'Guide Schedule', icon: 'map' },
+    { id: 'guide-info', label: 'Guide Information', icon: 'user' },
+  ];
+
   // Additional navigation items for admin users
   const adminNavItems = [
     { id: 'manage-tours', label: 'Manage tours', icon: 'map' },
@@ -46,6 +53,14 @@ const Account = () => {
     { id: 'manage-reviews', label: 'Manage reviews', icon: 'star' },
     { id: 'manage-bookings', label: 'Manage bookings', icon: 'briefcase' },
   ];
+
+  // Get navigation items based on user role
+  const getNavItems = () => {
+    if (user?.role === 'guide' || user?.role === 'lead-guide') {
+      return guideNavItems;
+    }
+    return userNavItems;
+  };
 
   // Update user data when user prop changes
   useEffect(() => {
@@ -123,6 +138,10 @@ const Account = () => {
         return renderReviewsTab();
       case 'billing':
         return renderBillingTab();
+      case 'guide-tours':
+        return renderGuideToursTab();
+      case 'guide-info':
+        return renderGuideInfoTab();
       case 'manage-tours':
         return renderManageToursTab();
       case 'manage-users':
@@ -256,6 +275,91 @@ const Account = () => {
         </form>
       </div>
     </>
+  );
+
+  const renderGuideToursTab = () => (
+    <div className="user-view__form-container">
+      <h2 className="heading-secondary ma-bt-md">Guide Schedule</h2>
+      <p style={{ fontSize: '1.6rem', color: '#777', marginBottom: '2rem' }}>
+        View your assigned tours and manage your guiding schedule.
+      </p>
+      <div style={{ textAlign: 'center', padding: '3rem' }}>
+        <a 
+          href="/my-guide-tours" 
+          className="btn btn--green"
+          style={{ textDecoration: 'none' }}
+        >
+          View My Guide Tours
+        </a>
+      </div>
+      <p style={{ fontSize: '1.4rem', color: '#999', textAlign: 'center' }}>
+        Click above to see detailed information about your assigned tours and participants.
+      </p>
+    </div>
+  );
+
+  const renderGuideInfoTab = () => (
+    <div className="user-view__form-container">
+      <h2 className="heading-secondary ma-bt-md">Guide Information</h2>
+      <div className="guide-info-grid" style={{ display: 'grid', gap: '2rem', marginTop: '2rem' }}>
+        
+        <div className="guide-info-card" style={{ 
+          background: '#f9f9f9', 
+          padding: '2rem', 
+          borderRadius: '1rem',
+          border: '1px solid #e0e0e0'
+        }}>
+          <h3 style={{ fontSize: '1.8rem', color: '#333', marginBottom: '1rem' }}>Role Information</h3>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
+            <strong style={{ fontSize: '1.6rem', color: '#55c57a' }}>
+              {user.role === 'guide' ? 'Tour Guide' : 'Lead Guide'}
+            </strong>
+          </div>
+          <p style={{ fontSize: '1.4rem', color: '#777', lineHeight: '1.6' }}>
+            {user.role === 'guide' 
+              ? 'You are responsible for leading tours and ensuring guests have an amazing experience.'
+              : 'You are responsible for leading tours and coordinating with other guides.'
+            }
+          </p>
+        </div>
+
+        <div className="guide-info-card" style={{ 
+          background: '#f9f9f9', 
+          padding: '2rem', 
+          borderRadius: '1rem',
+          border: '1px solid #e0e0e0'
+        }}>
+          <h3 style={{ fontSize: '1.8rem', color: '#333', marginBottom: '1rem' }}>Contact Information</h3>
+          <div style={{ marginBottom: '1rem' }}>
+            <strong style={{ fontSize: '1.4rem', color: '#555' }}>Name:</strong>
+            <span style={{ fontSize: '1.4rem', color: '#777', marginLeft: '1rem' }}>{user.name}</span>
+          </div>
+          <div style={{ marginBottom: '1rem' }}>
+            <strong style={{ fontSize: '1.4rem', color: '#555' }}>Email:</strong>
+            <span style={{ fontSize: '1.4rem', color: '#777', marginLeft: '1rem' }}>{user.email}</span>
+          </div>
+        </div>
+
+        <div className="guide-info-card" style={{ 
+          background: '#f9f9f9', 
+          padding: '2rem', 
+          borderRadius: '1rem',
+          border: '1px solid #e0e0e0'
+        }}>
+          <h3 style={{ fontSize: '1.8rem', color: '#333', marginBottom: '1rem' }}>Responsibilities</h3>
+          <ul style={{ fontSize: '1.4rem', color: '#777', lineHeight: '1.8', paddingLeft: '2rem' }}>
+            <li>Lead assigned tours professionally and safely</li>
+            <li>Provide excellent customer service to all participants</li>
+            <li>Ensure all safety protocols are followed</li>
+            <li>Communicate effectively with tour participants</li>
+            {user.role === 'lead-guide' && (
+              <li>Coordinate and manage other tour guides</li>
+            )}
+          </ul>
+        </div>
+
+      </div>
+    </div>
   );
 
   const renderBookingsTab = () => {
@@ -511,7 +615,7 @@ const Account = () => {
       <div className="user-view">
         <nav className="user-view__menu">
           <ul className="side-nav">
-            {userNavItems.map((item) => (
+            {getNavItems().map((item) => (
               <li key={item.id} className={activeTab === item.id ? 'side-nav--active' : ''}>
                 <a 
                   href="#" 

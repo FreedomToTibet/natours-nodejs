@@ -15,6 +15,16 @@ function Header() {
         <Link to="/" className="nav__el">
           All tours
         </Link>
+        {user && (user.role === 'guide' || user.role === 'lead-guide') && (
+          <Link to="/my-guide-tours" className="nav__el">
+            My Guide Tours
+          </Link>
+        )}
+        {user && user.role === 'user' && (
+          <Link to="/my-tours" className="nav__el">
+            My Tours
+          </Link>
+        )}
       </nav>
       <div className="header__logo">
         <img src="/img/logo-white.png" alt="Natours logo" />

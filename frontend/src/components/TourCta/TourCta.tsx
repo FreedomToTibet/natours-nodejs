@@ -18,6 +18,11 @@ function TourCta({ tour }: TourCtaProps) {
       return;
     }
     
+    // Prevent booking for non-user roles
+    if (user.role !== 'user') {
+      return;
+    }
+    
     if (existingBooking) {
       // Navigate to booking management page
       navigate(`/booking-manage/${existingBooking._id}`);
@@ -29,6 +34,7 @@ function TourCta({ tour }: TourCtaProps) {
 
   const getButtonText = () => {
     if (!user) return 'Log in to book tour';
+    if (user.role !== 'user') return 'Booking not available for staff';
     if (bookingLoading) return 'Checking booking...';
     if (existingBooking) {
       return existingBooking.paid ? 'Manage booking' : 'Complete payment';
@@ -37,10 +43,15 @@ function TourCta({ tour }: TourCtaProps) {
   };
 
   const getButtonClass = () => {
-    if (!user || !existingBooking) return 'btn btn--green span-all-rows';
+    if (!user || user.role !== 'user') return 'btn btn--gray span-all-rows';
+    if (!existingBooking) return 'btn btn--green span-all-rows';
     return existingBooking.paid 
       ? 'btn btn--blue span-all-rows' 
       : 'btn btn--orange span-all-rows';
+  };
+
+  const isBookingDisabled = () => {
+    return bookingLoading || (user ? user.role !== 'user' : false);
   };
 
   return (
@@ -70,7 +81,7 @@ function TourCta({ tour }: TourCtaProps) {
             id="book-tour" 
             data-tour-id={tour._id}
             onClick={handleBookTour}
-            disabled={bookingLoading}
+            disabled={isBookingDisabled()}
           >
             {getButtonText()}
           </button>

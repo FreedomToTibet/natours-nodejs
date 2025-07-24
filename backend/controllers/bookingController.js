@@ -345,3 +345,43 @@ export const deleteUserBooking = catchAsync(async (req, res, next) => {
     data: null,
   });
 });
+
+// Get tour participants for guides
+export const getTourParticipants = catchAsync(async (req, res, next) => {
+  const tourId = req.params.tourId;
+  
+  // First check if the current user is a guide for this tour
+  const tour = await Tour.findById(tourId).populate('guides');
+  if (!tour) {
+    return next(new AppError('No tour found with that ID', 404));
+  }
+  
+  // Check if current user is a guide for this tour
+  const isGuideForTour = tour.guides.some(guide => guide._id.toString() === req.user.id);
+  if (!isGuideForTour && req.user.role !== 'lead-guide' && req.user.role !== 'admin') {
+    return next(new AppError('You are not authorized to view participants for this tour', 403));
+  }
+  
+  // Get all bookings for this tour with user details
+  const bookings = await Booking.find({ 
+    tour: tourId,
+    paid: true // Only show paid bookings
+  })
+  .populate({
+    path: 'user',
+    select: 'name email photo'
+  })
+  .populate({
+    path: 'tour',
+    select: 'name startDates duration'
+  })
+  .select('-__v');
+
+  res.status(200).json({
+    status: 'success',
+    results: bookings.length,
+    data: {
+      participants: bookings
+    }
+  });
+});
