@@ -25,7 +25,10 @@ export const useUserBookings = () => {
   return useQuery({
     queryKey: ['userBookings'],
     queryFn: () => bookingService.getUserBookings(),
-    staleTime: 60 * 1000, // Consider data fresh for 1 minute
+    staleTime: 0, // Always refetch when requested
+    refetchOnMount: true, // Refetch when component mounts
+    refetchOnWindowFocus: true, // Refetch when window gains focus
+    retry: 3, // Retry 3 times if fails
   });
 };
 
