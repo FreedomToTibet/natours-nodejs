@@ -3,14 +3,71 @@ import Booking from "../models/bookingModel.js";
 import catchAsync from "../utils/catchAsync.js";
 import AppError from "../utils/appError.js";
 
-import { deleteOne, updateOne, createOne, getOne, getAll } from './handlerFactory.js';
+import { deleteOne, createOne, getOne, getAll } from './handlerFactory.js';
 
 export const createReview = createOne(Review);
-export const updateReview = updateOne(Review);
-export const deleteReview = deleteOne(Review);
-
 export const getReview = getOne(Review);
 export const getAllReviews = getAll(Review);
+
+// Middleware to check if user owns the review
+export const checkReviewOwnership = catchAsync(async (req, res, next) => {
+  const review = await Review.findById(req.params.id);
+  
+  if (!review) {
+    return next(new AppError('No review found with that ID', 404));
+  }
+  
+  // Check if current user owns this review
+  if (review.user.id !== req.user.id) {
+    return next(new AppError('You can only modify your own reviews', 403));
+  }
+  
+  next();
+});
+
+// Use direct update to avoid middleware issues
+export const updateReview = catchAsync(async (req, res, next) => {
+  try {
+    // Use updateOne directly on the model to avoid middleware issues
+    const result = await Review.updateOne(
+      { _id: req.params.id },
+      { $set: req.body },
+      { runValidators: true }
+    );
+    
+    if (result.matchedCount === 0) {
+      return next(new AppError('No review found with that ID', 404));
+    }
+    
+    // Get the updated document to return
+    const updatedReview = await Review.findById(req.params.id);
+    
+    res.status(200).json({
+      status: 'success',
+      data: {
+        data: updatedReview,
+      },
+    });
+  } catch (err) {
+    console.error('Update review error:', err);
+    return next(new AppError(`Error updating review: ${err.message}`, 500));
+  }
+});
+
+// Simple deletion without middleware hooks
+export const deleteReview = catchAsync(async (req, res, next) => {
+  // Use deleteOne directly on the model, bypassing middleware
+  const result = await Review.deleteOne({ _id: req.params.id });
+  
+  if (result.deletedCount === 0) {
+    return next(new AppError('No review found with that ID', 404));
+  }
+  
+  res.status(204).json({
+    status: 'success',
+    data: null,
+  });
+});
 
 export const setTourUserIds = (req, res, next) => {
   // Allow nested routes

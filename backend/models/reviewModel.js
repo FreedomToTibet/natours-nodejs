@@ -86,11 +86,19 @@ reviewSchema.post('save', function () {
 
 reviewSchema.pre(/^findOneAnd/, async function (next) {
 	this.review = await this.findOne();
+	// Store tour ID for use after deletion
+	if (this.review) {
+		this.tourId = this.review.tour;
+	}
 	next();
 });
 
 reviewSchema.post(/^findOneAnd/, async function () {
-await this.review.constructor.calcAverageRatings(this.review.tour);
+	// Only update ratings if we have the review and tour ID
+	if (this.tourId) {
+		const ReviewModel = this.review ? this.review.constructor : mongoose.model('Review');
+		await ReviewModel.calcAverageRatings(this.tourId);
+	}
 });
 
 const Review = mongoose.model("Review", reviewSchema);

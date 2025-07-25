@@ -35,6 +35,8 @@ export const useUpdateReview = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['userReviews'] });
       queryClient.invalidateQueries({ queryKey: ['tours'] });
+      // Also invalidate the specific tour's user review query
+      queryClient.invalidateQueries({ queryKey: ['userReview'] });
     },
   });
 };
@@ -48,6 +50,8 @@ export const useDeleteReview = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['userReviews'] });
       queryClient.invalidateQueries({ queryKey: ['tours'] });
+      // Also invalidate the specific tour's user review query
+      queryClient.invalidateQueries({ queryKey: ['userReview'] });
     },
   });
 };

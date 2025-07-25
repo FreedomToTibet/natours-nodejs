@@ -254,8 +254,8 @@ body {
 }
 
 .btn--small {
-  padding: 1.25rem 3rem !important;
-  font-size: 1.4rem !important;
+  padding: 0.8rem 1.5rem !important;
+  font-size: 1.2rem !important;
 }
 
 .btn-small,
@@ -2114,27 +2114,34 @@ body {
 /* Review Display Actions */
 .review-display__actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
   margin-top: 1.5rem;
+  align-items: center;
 }
 
 .delete-confirm {
-  display: flex;
-  flex-direction: column;
+  display: inline-flex;
+  align-items: center;
   gap: 1rem;
-  align-items: flex-start;
+  background-color: rgba(220, 53, 69, 0.1);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  border: 1px solid rgba(220, 53, 69, 0.2);
+  margin-top: 0;
 }
 
 .delete-confirm-text {
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   color: #dc3545;
   font-weight: 600;
   margin: 0;
+  white-space: nowrap;
 }
 
 .delete-confirm-actions {
-  display: flex;
-  gap: 1rem;
+  display: inline-flex;
+  gap: 0.5rem;
 }
 
 /* Guide Tours Styles */

@@ -104,6 +104,11 @@ const BookingManage = () => {
           setShowEditForm(false);
           setReviewData({ review: '', rating: 5 });
           refetchReview();
+        },
+        onError: (error) => {
+          console.error('Error updating review:', error);
+          console.error('Full error object:', JSON.stringify(error, null, 2));
+          alert('Failed to update review. Check console for details.');
         }
       });
     }
@@ -115,6 +120,11 @@ const BookingManage = () => {
         onSuccess: () => {
           setShowDeleteConfirm(false);
           refetchReview();
+        },
+        onError: (error) => {
+          console.error('Error deleting review:', error);
+          console.error('Full error object:', JSON.stringify(error, null, 2));
+          alert('Failed to delete review. Check console for details.');
         }
       });
     }
@@ -213,13 +223,13 @@ const BookingManage = () => {
                                 onClick={handleDeleteReview}
                                 disabled={deleteReviewMutation.isPending}
                               >
-                                {deleteReviewMutation.isPending ? 'Deleting...' : 'Yes, Delete'}
+                                {deleteReviewMutation.isPending ? '...' : 'Yes'}
                               </button>
                               <button 
                                 className="btn btn--small btn--white"
                                 onClick={() => setShowDeleteConfirm(false)}
                               >
-                                Cancel
+                                No
                               </button>
                             </div>
                           </div>

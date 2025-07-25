@@ -30,10 +30,12 @@ router
   .get(reviewController.getReview)
   .patch(
     authController.restrictTo('user', 'admin'),
+    reviewController.checkReviewOwnership,
     reviewController.updateReview
   )
   .delete(
     authController.restrictTo('user', 'admin'),
+    reviewController.checkReviewOwnership,
     reviewController.deleteReview
   );
 
