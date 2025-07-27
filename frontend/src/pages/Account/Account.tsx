@@ -6,6 +6,9 @@ import { StarRating } from '../../components';
 import { formatCurrency } from '../../utils';
 import type { UpdateUserData, UpdatePasswordData } from '../../services';
 
+// Constant for sessionStorage key
+const ACTIVE_TAB_STORAGE_KEY = 'natours_account_active_tab';
+
 const Account = () => {
   const location = useLocation();
   const { data: user, isLoading } = useCurrentUser();
@@ -14,8 +17,15 @@ const Account = () => {
   const updateUserMutation = useUpdateUser();
   const updatePasswordMutation = useUpdatePassword();
   
-  // Active tab state - check for navigation state
-  const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'settings');
+  // Get active tab from multiple sources with priority:
+  // 1. Navigation state (when navigating programmatically with state)
+  // 2. sessionStorage (for browser back/forward navigation)
+  // 3. Default to 'settings' if nothing is found
+  const [activeTab, setActiveTab] = useState(() => {
+    return location.state?.activeTab || 
+           sessionStorage.getItem(ACTIVE_TAB_STORAGE_KEY) || 
+           'settings';
+  });
   
   // User form state
   const [userData, setUserData] = useState({
@@ -61,6 +71,16 @@ const Account = () => {
     }
     return userNavItems;
   };
+  
+  // Handle tab switching
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+  };
+
+  // Save active tab to sessionStorage whenever it changes
+  useEffect(() => {
+    sessionStorage.setItem(ACTIVE_TAB_STORAGE_KEY, activeTab);
+  }, [activeTab]);
 
   // Update user data when user prop changes
   useEffect(() => {
@@ -621,7 +641,7 @@ const Account = () => {
                   href="#" 
                   onClick={(e) => {
                     e.preventDefault();
-                    setActiveTab(item.id);
+                    handleTabChange(item.id);
                   }}
                 >
                   <svg>
@@ -643,7 +663,7 @@ const Account = () => {
                       href="#" 
                       onClick={(e) => {
                         e.preventDefault();
-                        setActiveTab(item.id);
+                        handleTabChange(item.id);
                       }}
                     >
                       <svg>
