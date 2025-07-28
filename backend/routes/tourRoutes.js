@@ -48,6 +48,7 @@ router
     authController.restrictTo('admin', 'lead-guide'),
     tourController.uploadTourImages,
     tourController.resizeTourImages,
+    tourController.setLeadGuide,
     tourController.createTour
   );
 

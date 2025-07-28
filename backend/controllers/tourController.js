@@ -14,6 +14,22 @@ export const deleteTour = deleteOne(Tour);
 export const getTour = getOne(Tour, { path: 'reviews' });
 export const getAllTours = getAll(Tour);
 
+// Middleware to automatically add lead-guide as a guide when creating a tour
+export const setLeadGuide = (req, res, next) => {
+	// This middleware ensures that when a lead-guide creates a tour,
+	// they are automatically added as the first guide.
+	if (req.user && req.user.role === 'lead-guide') {
+		if (!req.body.guides) {
+			// If no guides are provided, create the array with the lead-guide.
+			req.body.guides = [req.user.id];
+		} else if (!req.body.guides.includes(req.user.id)) {
+			// If other guides are provided, add the lead-guide to the beginning of the array.
+			req.body.guides.unshift(req.user.id);
+		}
+	}
+	next();
+};
+
 const multerStorage = multer.memoryStorage();
 
 const multerFilter = (req, file, cb) => {
