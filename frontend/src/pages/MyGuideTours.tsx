@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useMyGuideTours, useTourParticipants } from '../hooks';
+import { useMyGuideTours, useTourParticipants, useCurrentUser, useDeleteTour } from '../hooks';
 import { LoadingSpinner } from '../components';
 import { formatPrice } from '../utils';
 
@@ -8,6 +8,14 @@ function MyGuideTours() {
   const [selectedTourId, setSelectedTourId] = useState<string>('');
   const { data: guideTours, isLoading: toursLoading, error: toursError } = useMyGuideTours();
   const { data: participants, isLoading: participantsLoading } = useTourParticipants(selectedTourId);
+  const { data: currentUser } = useCurrentUser();
+  const deleteTourMutation = useDeleteTour();
+
+  const handleDeleteTour = (tourId: string) => {
+    if (window.confirm('Are you sure you want to delete this tour? This action cannot be undone.')) {
+      deleteTourMutation.mutate(tourId);
+    }
+  };
 
   if (toursLoading) return <LoadingSpinner />;
   
@@ -113,12 +121,31 @@ function MyGuideTours() {
                     <p className="guide-tour-card__description">
                       {tour.summary}
                     </p>
-                    <button
-                      className="btn btn--green btn--small"
-                      onClick={() => setSelectedTourId(selectedTourId === tour._id ? '' : tour._id)}
-                    >
-                      {selectedTourId === tour._id ? 'Hide Participants' : 'View Participants'}
-                    </button>
+                    <div className="guide-tour-card__actions">
+                      <button
+                        className="btn btn--green btn--small"
+                        onClick={() => setSelectedTourId(selectedTourId === tour._id ? '' : tour._id)}
+                      >
+                        {selectedTourId === tour._id ? 'Hide Participants' : 'View Participants'}
+                      </button>
+                      {/* Show edit and delete options only for lead-guides */}
+                      {currentUser?.role === 'lead-guide' && (
+                        <div className="guide-tour-card__management">
+                          <Link to={`/tours/edit/${tour._id}`} className="btn btn--small btn--blue">
+                            <svg className="guide-tour-card__icon">
+                              <use xlinkHref="/img/icons.svg#icon-edit"></use>
+                            </svg>
+                            Edit
+                          </Link>
+                          <button className="btn btn--small btn--red" onClick={() => handleDeleteTour(tour._id)}>
+                            <svg className="guide-tour-card__icon">
+                              <use xlinkHref="/img/icons.svg#icon-trash"></use>
+                            </svg>
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {selectedTourId === tour._id && (

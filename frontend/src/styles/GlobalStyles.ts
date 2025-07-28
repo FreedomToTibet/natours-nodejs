@@ -1,4 +1,5 @@
 import { createGlobalStyle } from 'styled-components';
+import './TourManagement.css';
 
 const GlobalStyles = createGlobalStyle`
   :root {

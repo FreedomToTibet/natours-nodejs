@@ -5,8 +5,8 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import GlobalStyles from './styles';
-import AppLayout from './components';
-import { Overview, Tour, Login, Signup, Account, MyTours, MyGuideTours, NotFound, Booking, BookingManage, ForgotPassword, ResetPassword } from './pages';
+import AppLayout, { ProtectedRoute } from './components';
+import { Overview, Tour, Login, Signup, Account, MyTours, MyGuideTours, NotFound, Booking, BookingManage, ForgotPassword, ResetPassword, CreateTour, EditTour } from './pages';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,6 +37,13 @@ function App() {
             <Route path="/account" element={<Account />} />
             <Route path="/my-tours" element={<MyTours />} />
             <Route path="/my-guide-tours" element={<MyGuideTours />} />
+            
+            {/* Protected routes for lead-guides */}
+            <Route element={<ProtectedRoute allowedRoles={['lead-guide', 'admin']} />}>
+              <Route path="/tours/create" element={<CreateTour />} />
+              <Route path="/tours/edit/:id" element={<EditTour />} />
+            </Route>
+            
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

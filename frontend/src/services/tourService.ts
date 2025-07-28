@@ -156,3 +156,82 @@ export const getTourBySlug = async (slug: string): Promise<Tour> => {
     throw new Error('Failed to fetch tour: Unknown error');
   }
 };
+
+// Get tour by ID
+export const getTourById = async (id: string): Promise<Tour> => {
+  try {
+    const response = await api.get(`/tours/${id}`);
+    const tourData = response.data?.data?.data;
+    
+    if (!tourData) {
+      throw new Error('Invalid API response structure');
+    }
+    
+    return tourData;
+  } catch (error: unknown) {
+    console.error('Error fetching tour by ID:', error);
+    if (error instanceof Error) {
+      throw new Error(`Failed to fetch tour: ${error.message}`);
+    }
+    throw new Error('Failed to fetch tour: Unknown error');
+  }
+};
+
+// Create a new tour (lead-guide and admin only)
+export const createTour = async (tourData: FormData): Promise<Tour> => {
+  try {
+    const response = await api.post('/tours', tourData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data.data.tour;
+  } catch (error: unknown) {
+    console.error('Error creating tour:', error);
+    if (error instanceof Error) {
+      throw new Error(`Failed to create tour: ${error.message}`);
+    }
+    throw new Error('Failed to create tour: Unknown error');
+  }
+};
+
+// Update a tour (lead-guide and admin only)
+export const updateTour = async (id: string, tourData: FormData): Promise<Tour> => {
+  try {
+    const response = await api.patch(`/tours/${id}`, tourData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data.data.tour;
+  } catch (error: unknown) {
+    console.error('Error updating tour:', error);
+    if (error instanceof Error) {
+      throw new Error(`Failed to update tour: ${error.message}`);
+    }
+    throw new Error('Failed to update tour: Unknown error');
+  }
+};
+
+// Delete a tour (lead-guide and admin only)
+export const deleteTour = async (id: string): Promise<void> => {
+  try {
+    await api.delete(`/tours/${id}`);
+  } catch (error: unknown) {
+    console.error('Error deleting tour:', error);
+    if (error instanceof Error) {
+      throw new Error(`Failed to delete tour: ${error.message}`);
+    }
+    throw new Error('Failed to delete tour: Unknown error');
+  }
+};
+
+// Export the tour service with all methods
+export const tourService = {
+  getAllTours,
+  getTour,
+  getTourBySlug,
+  createTour,
+  updateTour,
+  deleteTour
+};

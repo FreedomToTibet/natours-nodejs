@@ -20,6 +20,11 @@ function Header() {
             My Guide Tours
           </Link>
         )}
+        {user && user.role === 'lead-guide' && (
+          <Link to="/tours/create" className="nav__el">
+            Create Tour
+          </Link>
+        )}
         {user && user.role === 'user' && (
           <Link to="/my-tours" className="nav__el">
             My Tours

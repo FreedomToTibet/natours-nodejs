@@ -10,3 +10,5 @@ export { default as Overview } from './Overview';
 export { default as ResetPassword } from './ResetPassword';
 export { default as Signup } from './Signup';
 export { default as Tour } from './Tour';
+export { default as CreateTour } from './TourManagement/CreateTour';
+export { default as EditTour } from './TourManagement/EditTour';
