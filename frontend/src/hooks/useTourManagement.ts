@@ -10,7 +10,7 @@ export const useCreateTour = () => {
     mutationFn: (tourData: FormData) => tourService.createTour(tourData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tours'] });
-      queryClient.invalidateQueries({ queryKey: ['my-guide-tours'] });
+      queryClient.invalidateQueries({ queryKey: ['myGuideTours'] });
       toast.success('Tour created successfully!');
     },
     onError: (error: Error & { response?: { data?: { message?: string } } }) => {
@@ -29,7 +29,7 @@ export const useUpdateTour = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['tours'] });
       queryClient.invalidateQueries({ queryKey: ['tour', variables.id] });
-      queryClient.invalidateQueries({ queryKey: ['my-guide-tours'] });
+      queryClient.invalidateQueries({ queryKey: ['myGuideTours'] });
       toast.success('Tour updated successfully!');
     },
     onError: (error: Error & { response?: { data?: { message?: string } } }) => {
@@ -46,7 +46,7 @@ export const useDeleteTour = () => {
     mutationFn: (id: string) => tourService.deleteTour(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tours'] });
-      queryClient.invalidateQueries({ queryKey: ['my-guide-tours'] });
+      queryClient.invalidateQueries({ queryKey: ['myGuideTours'] });
       toast.success('Tour deleted successfully!');
     },
     onError: (error: Error & { response?: { data?: { message?: string } } }) => {

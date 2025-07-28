@@ -2,9 +2,33 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Tour } from '../../services';
 
+interface TourFormData {
+  name: string;
+  duration: number;
+  maxGroupSize: number;
+  difficulty: string;
+  price: number;
+  summary: string;
+  description: string;
+  imageCover: File | null;
+  images: File[];
+  startDates: string[];
+  startLocation: {
+    description: string;
+    address: string;
+    coordinates: [number, number];
+  };
+  locations: Array<{
+    description: string;
+    day: number;
+    coordinates: [number, number];
+  }>;
+  guides: string[];
+}
+
 interface TourFormProps {
   initialData?: Tour;
-  onSubmit: (tourData: any) => void;
+  onSubmit: (tourData: FormData) => void;
   isLoading: boolean;
   isEdit?: boolean;
 }
@@ -17,7 +41,7 @@ const TourForm: React.FC<TourFormProps> = ({
 }) => {
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<TourFormData>({
     name: '',
     duration: 1,
     maxGroupSize: 1,
@@ -45,12 +69,28 @@ const TourForm: React.FC<TourFormProps> = ({
     if (initialData) {
       // Map the initial data to formData
       setFormData({
-        ...initialData,
+        name: initialData.name,
+        duration: initialData.duration,
+        maxGroupSize: initialData.maxGroupSize,
+        difficulty: initialData.difficulty,
+        price: initialData.price,
+        summary: initialData.summary,
+        description: initialData.description,
         imageCover: null,
         images: [],
         startDates: initialData.startDates.map(date => 
           new Date(date).toISOString().split('T')[0]
         ),
+        startLocation: {
+          description: initialData.startLocation.description,
+          address: initialData.startLocation.address || '',
+          coordinates: initialData.startLocation.coordinates
+        },
+        locations: initialData.locations.map(location => ({
+          description: location.description,
+          day: location.day,
+          coordinates: location.coordinates
+        })),
         guides: initialData.guides?.map(guide => 
           typeof guide === 'string' ? guide : guide._id
         ) || []
@@ -64,13 +104,18 @@ const TourForm: React.FC<TourFormProps> = ({
     if (name.includes('.')) {
       // Handle nested properties like startLocation.description
       const [parent, child] = name.split('.');
-      setFormData(prev => ({
-        ...prev,
-        [parent]: {
-          ...prev[parent as keyof typeof prev],
-          [child]: value
+      setFormData(prev => {
+        if (parent === 'startLocation') {
+          return {
+            ...prev,
+            startLocation: {
+              ...prev.startLocation,
+              [child]: value
+            }
+          };
         }
-      }));
+        return prev;
+      });
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
@@ -126,8 +171,10 @@ const TourForm: React.FC<TourFormProps> = ({
   const handleLocationChange = (index: number, field: string, value: string | number) => {
     setFormData(prev => {
       const newLocations = [...prev.locations];
-      // @ts-ignore
-      newLocations[index] = { ...newLocations[index], [field]: field === 'day' ? parseInt(value as string, 10) : value };
+      newLocations[index] = { 
+        ...newLocations[index], 
+        [field]: field === 'day' ? parseInt(value as string, 10) : value 
+      };
       return { ...prev, locations: newLocations };
     });
   };
@@ -135,7 +182,7 @@ const TourForm: React.FC<TourFormProps> = ({
   const handleCoordinateChange = (index: number, coordIndex: number, value: string) => {
     setFormData(prev => {
       const newLocations = [...prev.locations];
-      const newCoords = [...newLocations[index].coordinates];
+      const newCoords: [number, number] = [...newLocations[index].coordinates];
       newCoords[coordIndex] = parseFloat(value);
       newLocations[index] = { ...newLocations[index], coordinates: newCoords };
       return { ...prev, locations: newLocations };
@@ -145,7 +192,7 @@ const TourForm: React.FC<TourFormProps> = ({
   const handleStartLocationCoordinateChange = (coordIndex: number, value: string) => {
     setFormData(prev => {
       const newStartLocation = { ...prev.startLocation };
-      const newCoords = [...newStartLocation.coordinates];
+      const newCoords: [number, number] = [...newStartLocation.coordinates];
       newCoords[coordIndex] = parseFloat(value);
       return { ...prev, startLocation: { ...newStartLocation, coordinates: newCoords } };
     });
