@@ -132,3 +132,4 @@ dist
 # Environment variables
 config.env
 *.env
+nul

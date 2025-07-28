@@ -6,10 +6,25 @@ const handleCastErrorDB = (err) => {
 };
 
 const handleValidationErrorDB = (err) => {
-  const errors = Object.values(err.errors).map((el) => el.message);
+  console.log('Validation error details:');
+  const errorDetails = {};
+  
+  Object.keys(err.errors).forEach(field => {
+    const error = err.errors[field];
+    console.log(`- ${field}: ${error.message} (${error.kind})`);
+    errorDetails[field] = {
+      message: error.message,
+      value: error.value,
+      kind: error.kind
+    };
+  });
 
+  const errors = Object.values(err.errors).map((el) => el.message);
   const message = `Invalid input data. ${errors.join('. ')}`;
-  return new AppError(message, 400);
+  
+  const appError = new AppError(message, 400);
+  appError.validationDetails = errorDetails;
+  return appError;
 };
 
 const handleJWTError = () =>
@@ -27,12 +42,25 @@ const handleDuplicateFieldsDB = (err) => {
 };
 
 const sendErrorDev = (err, req, res) => {
+  console.log('DETAILED ERROR INFO (DEV MODE):');
+  console.log('Error name:', err.name);
+  console.log('Error message:', err.message);
+  console.log('Error stack:', err.stack);
+  
+  if (err.name === 'ValidationError' && err.errors) {
+    console.log('Validation error details:');
+    Object.keys(err.errors).forEach(field => {
+      console.log(`- ${field}: ${err.errors[field].message} (${err.errors[field].kind})`);
+    });
+  }
+  
   if (req.originalUrl.startsWith('/api')) {
     return res.status(err.statusCode).json({
       status: err.status,
       error: err,
       message: err.message,
       stack: err.stack,
+      validationErrors: err.name === 'ValidationError' ? err.errors : undefined
     });
   }
 	return res.status(err.statusCode).render('error', {

@@ -19,10 +19,10 @@ const TourForm: React.FC<TourFormProps> = ({
 
   const [formData, setFormData] = useState({
     name: '',
-    duration: 0,
-    maxGroupSize: 0,
+    duration: 1,
+    maxGroupSize: 1,
     difficulty: 'easy',
-    price: 0,
+    price: 100,
     summary: '',
     description: '',
     imageCover: null as File | null,
@@ -31,12 +31,12 @@ const TourForm: React.FC<TourFormProps> = ({
     startLocation: {
       description: '',
       address: '',
-      coordinates: [0, 0]
+      coordinates: [-80.185942, 25.774772] // Default Miami coordinates
     },
     locations: [{
       description: '',
       day: 1,
-      coordinates: [0, 0]
+      coordinates: [-80.185942, 25.774772] // Default Miami coordinates
     }],
     guides: [] as string[]
   });
@@ -176,6 +176,36 @@ const TourForm: React.FC<TourFormProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validation for required fields
+    if (!formData.name.trim()) {
+      alert('Tour name is required');
+      return;
+    }
+    if (!formData.summary.trim()) {
+      alert('Tour summary is required');
+      return;
+    }
+    if (!formData.description.trim()) {
+      alert('Tour description is required');
+      return;
+    }
+    if (!formData.startLocation.description.trim()) {
+      alert('Start location description is required');
+      return;
+    }
+    if (!formData.startLocation.address.trim()) {
+      alert('Start location address is required');
+      return;
+    }
+    if (!isEdit && !formData.imageCover) {
+      alert('Cover image is required for new tours');
+      return;
+    }
+    if (formData.startDates.filter(date => date.trim()).length === 0) {
+      alert('At least one start date is required');
+      return;
+    }
+    
     // Create FormData object for file uploads
     const tourData = new FormData();
     
@@ -188,21 +218,33 @@ const TourForm: React.FC<TourFormProps> = ({
     tourData.append('summary', formData.summary);
     tourData.append('description', formData.description);
     
-    // Add start location
-    tourData.append('startLocation[type]', 'Point');
-    tourData.append('startLocation[description]', formData.startLocation.description);
-    tourData.append('startLocation[address]', formData.startLocation.address);
-    tourData.append('startLocation[coordinates][0]', formData.startLocation.coordinates[0].toString());
-    tourData.append('startLocation[coordinates][1]', formData.startLocation.coordinates[1].toString());
+    // Create startLocation object and stringify it
+    const startLocation = {
+      type: 'Point',
+      description: formData.startLocation.description,
+      address: formData.startLocation.address,
+      coordinates: [
+        formData.startLocation.coordinates[0],
+        formData.startLocation.coordinates[1]
+      ]
+    };
     
-    // Add locations
-    formData.locations.forEach((location, i) => {
-      tourData.append(`locations[${i}][type]`, 'Point');
-      tourData.append(`locations[${i}][description]`, location.description);
-      tourData.append(`locations[${i}][day]`, location.day.toString());
-      tourData.append(`locations[${i}][coordinates][0]`, location.coordinates[0].toString());
-      tourData.append(`locations[${i}][coordinates][1]`, location.coordinates[1].toString());
-    });
+    // Add start location as JSON string
+    tourData.append('startLocation', JSON.stringify(startLocation));
+    
+    // Create locations array and stringify it
+    const locations = formData.locations.map(location => ({
+      type: 'Point',
+      description: location.description,
+      day: location.day,
+      coordinates: [
+        location.coordinates[0],
+        location.coordinates[1]
+      ]
+    }));
+    
+    // Add locations as JSON string
+    tourData.append('locations', JSON.stringify(locations));
     
     // Add start dates (only non-empty dates)
     formData.startDates.forEach((date) => {
@@ -228,6 +270,12 @@ const TourForm: React.FC<TourFormProps> = ({
       formData.images.forEach((image) => {
         tourData.append('images', image);
       });
+    }
+    
+    // Debug: Log form data
+    console.log('Submitting tour data:');
+    for (const pair of tourData.entries()) {
+      console.log(pair[0] + ': ' + pair[1]);
     }
     
     onSubmit(tourData);

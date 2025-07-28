@@ -26,7 +26,6 @@ const EditTour = () => {
     
     try {
       await updateTourMutation.mutateAsync({ id, data: tourData });
-      toast.success('Tour updated successfully!');
       navigate('/my-guide-tours');
     } catch (error) {
       console.error('Error updating tour:', error);

@@ -34,14 +34,51 @@ export const updateOne = (Model) => catchAsync(async (req, res, next) => {
 });
 
 export const createOne = (Model) => catchAsync(async (req, res, next) => {
-	const doc = await Model.create(req.body);
+	try {
+		console.log(`Creating new ${Model.modelName} with body:`, JSON.stringify(req.body, null, 2));
+		
+		// Check for startLocation and locations data
+		if (Model.modelName === 'Tour') {
+			console.log('Tour specific fields:');
+			console.log('- startLocation:', req.body.startLocation);
+			console.log('- locations:', req.body.locations);
+			console.log('- startDates:', req.body.startDates);
+			console.log('- guides:', req.body.guides);
+			
+			// Validate nested objects are properly formatted
+			if (typeof req.body.startLocation === 'object') {
+				console.log('startLocation is an object, converting to proper format if needed');
+			}
+			
+			if (Array.isArray(req.body.locations)) {
+				console.log('locations is an array with', req.body.locations.length, 'items');
+			}
+		}
+		
+		const doc = await Model.create(req.body);
+		console.log(`${Model.modelName} created successfully with ID:`, doc._id);
 
-	res.status(201).json({
-		status: "success",
-		data: {
-			data: doc,
-		},
-	});
+		res.status(201).json({
+			status: "success",
+			data: {
+				data: doc,
+			},
+		});
+	} catch (error) {
+		console.error(`Error creating ${Model.modelName}:`, error);
+		console.error('Error name:', error.name);
+		console.error('Error message:', error.message);
+		
+		if (error.name === 'ValidationError') {
+			const errors = Object.keys(error.errors).map(field => ({
+				field,
+				message: error.errors[field].message
+			}));
+			console.error('Validation errors:', errors);
+		}
+		
+		next(error);
+	}
 });
 
 export const getOne = (Model, populateOptions) => catchAsync(async (req, res, next) => {

@@ -35,33 +35,77 @@ export const uploadTourImages = upload.fields([
 ]);
 
 export const resizeTourImages = catchAsync(async (req, res, next) => {
-	// Process imageCover if it exists
-	if (req.files && req.files.imageCover) {
-		req.body.imageCover = `tour-${req.params.id}-${Date.now()}.jpeg`;
-		await sharp(req.files.imageCover[0].buffer)
-			.resize(500, 333)
-			.toFormat('jpeg')
-			.jpeg({ quality: 90 })
-			.toFile(`public/img/tours/${req.body.imageCover}`);
-	}
-
-	// Process images if they exist
-	if (req.files && req.files.images) {
-		req.body.images = [];
-		await Promise.all(
-			req.files.images.map(async (file, i) => {
-				const filename = `tour-${req.params.id}-${Date.now()}-${i + 1}.jpeg`;
-				await sharp(file.buffer)
-					.resize(500, 333)
-					.toFormat('jpeg')
-					.jpeg({ quality: 90 })
-					.toFile(`public/img/tours/${filename}`);
-				req.body.images.push(filename);
-			})
-		);
-	}
+	console.log('Processing tour images...');
+	console.log('Request files:', req.files);
+	console.log('Request body before processing:', req.body);
 	
-	next();
+	try {
+		// Parse JSON strings for nested objects
+		if (req.body.startLocation && typeof req.body.startLocation === 'string') {
+			try {
+				req.body.startLocation = JSON.parse(req.body.startLocation);
+				console.log('Parsed startLocation:', req.body.startLocation);
+			} catch (e) {
+				console.error('Error parsing startLocation JSON:', e);
+			}
+		}
+		
+		if (req.body.locations && typeof req.body.locations === 'string') {
+			try {
+				req.body.locations = JSON.parse(req.body.locations);
+				console.log('Parsed locations:', req.body.locations);
+			} catch (e) {
+				console.error('Error parsing locations JSON:', e);
+			}
+		}
+		
+		const imagePath = `../frontend/public/img/tours`;
+
+		// Process imageCover if it exists
+		if (req.files && req.files.imageCover) {
+			const tourId = req.params.id || 'new';
+			req.body.imageCover = `tour-${tourId}-${Date.now()}.jpeg`;
+			
+			console.log(`Saving cover image to: ${imagePath}/${req.body.imageCover}`);
+			
+			await sharp(req.files.imageCover[0].buffer)
+				.resize(500, 333)
+				.toFormat('jpeg')
+				.jpeg({ quality: 90 })
+				.toFile(`${imagePath}/${req.body.imageCover}`);
+				
+			console.log('Cover image processed successfully');
+		}
+
+		// Process images if they exist
+		if (req.files && req.files.images) {
+			const tourId = req.params.id || 'new';
+			req.body.images = [];
+			
+			await Promise.all(
+				req.files.images.map(async (file, i) => {
+					const filename = `tour-${tourId}-${Date.now()}-${i + 1}.jpeg`;
+					console.log(`Saving tour image ${i+1} to: ${imagePath}/${filename}`);
+					
+					await sharp(file.buffer)
+						.resize(500, 333)
+						.toFormat('jpeg')
+						.jpeg({ quality: 90 })
+						.toFile(`${imagePath}/${filename}`);
+						
+					req.body.images.push(filename);
+				})
+			);
+			
+			console.log('All tour images processed successfully');
+		}
+		
+		console.log('Request body after processing:', req.body);
+		next();
+	} catch (error) {
+		console.error('Error processing tour images:', error);
+		return next(new AppError('Error processing tour images. Please try again.', 500));
+	}
 });
 
 export const aliasTopTours = (req, res, next) => {
