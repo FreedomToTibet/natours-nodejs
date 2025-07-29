@@ -14,18 +14,81 @@ export const deleteTour = deleteOne(Tour);
 export const getTour = getOne(Tour, { path: 'reviews' });
 export const getAllTours = getAll(Tour);
 
+import User from '../models/userModel.js';
+
+// Middleware to resolve guide emails to user IDs
+export const resolveGuideEmails = catchAsync(async (req, res, next) => {
+	console.log('Resolving guide emails...');
+	
+	// Handle case where guides is a string (not an array)
+	if (typeof req.body.guides === 'string' && req.body.guides.trim() !== '') {
+		console.log('Converting guides from string to array:', req.body.guides);
+		req.body.guides = [req.body.guides];
+		console.log('Converted guides to array:', req.body.guides);
+	}
+	
+	if (req.body.guides && Array.isArray(req.body.guides)) {
+		const resolvedGuides = [];
+		
+		// Process each guide entry (which could be an ID or email)
+		for (const guide of req.body.guides) {
+			// Skip empty entries
+			if (!guide || guide.trim === undefined || guide.trim() === '') continue;
+			
+			// Check if the guide is an email or ID
+			if (guide.includes('@')) {
+				// It's an email, try to find the user
+				console.log(`Looking up guide by email: ${guide}`);
+				const user = await User.findOne({ email: guide });
+				
+				if (user) {
+					console.log(`Found user with email ${guide}: ${user.id}`);
+					resolvedGuides.push(user.id);
+				} else {
+					console.log(`No user found with email ${guide}`);
+					return next(new AppError(`No user found with email ${guide}. Make sure the email is correct.`, 400));
+				}
+			} else {
+				// Assume it's already an ID
+				console.log(`Using guide ID directly: ${guide}`);
+				resolvedGuides.push(guide);
+			}
+		}
+		
+		// Replace the guides array with resolved IDs
+		req.body.guides = resolvedGuides;
+		console.log('Resolved guides:', req.body.guides);
+	}
+	
+	next();
+});
+
 // Middleware to automatically add lead-guide as a guide when creating a tour
 export const setLeadGuide = (req, res, next) => {
+	console.log('Setting lead guide...');
+	
 	// This middleware ensures that when a lead-guide creates a tour,
 	// they are automatically added as the first guide.
-	if (req.user && req.user.role === 'lead-guide') {
-		if (!req.body.guides) {
-			// If no guides are provided, create the array with the lead-guide.
+	if (req.user && (req.user.role === 'lead-guide' || req.user.role === 'admin')) {
+		console.log('User is a lead-guide or admin, adding as first guide');
+		
+		// Handle string case - convert to array first
+		if (typeof req.body.guides === 'string' && req.body.guides.trim() !== '') {
+			console.log('Converting guides from string to array in setLeadGuide:', req.body.guides);
+			req.body.guides = [req.body.guides];
+		}
+		
+		if (!req.body.guides || !Array.isArray(req.body.guides)) {
+			// If no guides or invalid guides provided, create the array with the lead-guide
+			console.log('No guides or invalid guides, setting to lead guide only');
 			req.body.guides = [req.user.id];
 		} else if (!req.body.guides.includes(req.user.id)) {
-			// If other guides are provided, add the lead-guide to the beginning of the array.
-			req.body.guides.unshift(req.user.id);
+			// If other guides are provided, add the lead-guide to the beginning of the array
+			console.log('Adding lead guide to beginning of guides array');
+			req.body.guides = [req.user.id, ...req.body.guides];
 		}
+		
+		console.log('Final guides array:', req.body.guides);
 	}
 	next();
 };
@@ -73,6 +136,13 @@ export const resizeTourImages = catchAsync(async (req, res, next) => {
 			} catch (e) {
 				console.error('Error parsing locations JSON:', e);
 			}
+		}
+		
+		// Ensure startDates is an array
+		if (req.body.startDates && !Array.isArray(req.body.startDates)) {
+			console.log('Converting startDates to array:', req.body.startDates);
+			req.body.startDates = [req.body.startDates];
+			console.log('Converted startDates to array:', req.body.startDates);
 		}
 		
 		const imagePath = `../frontend/public/img/tours`;

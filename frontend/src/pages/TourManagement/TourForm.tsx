@@ -62,7 +62,7 @@ const TourForm: React.FC<TourFormProps> = ({
       day: 1,
       coordinates: [-80.185942, 25.774772] // Default Miami coordinates
     }],
-    guides: [] as string[]
+    guides: [''] as string[] // Initialize with one empty guide field
   });
 
   useEffect(() => {
@@ -219,6 +219,30 @@ const TourForm: React.FC<TourFormProps> = ({
       return { ...prev, locations: newLocations };
     });
   };
+  
+  // Handler functions for guides
+  const handleGuideChange = (index: number, value: string) => {
+    setFormData(prev => {
+      const newGuides = [...prev.guides];
+      newGuides[index] = value;
+      return { ...prev, guides: newGuides };
+    });
+  };
+
+  const addGuide = () => {
+    setFormData(prev => ({
+      ...prev,
+      guides: [...prev.guides, '']
+    }));
+  };
+
+  const removeGuide = (index: number) => {
+    setFormData(prev => {
+      const newGuides = [...prev.guides];
+      newGuides.splice(index, 1);
+      return { ...prev, guides: newGuides };
+    });
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -250,6 +274,13 @@ const TourForm: React.FC<TourFormProps> = ({
     }
     if (formData.startDates.filter(date => date.trim()).length === 0) {
       alert('At least one start date is required');
+      return;
+    }
+    
+    // Validate guides for new tours (at least one guide is required)
+    const validGuides = formData.guides.filter(guide => guide.trim());
+    if (!isEdit && validGuides.length === 0) {
+      alert('At least one guide is required. Please enter a guide email.');
       return;
     }
     
@@ -611,6 +642,42 @@ const TourForm: React.FC<TourFormProps> = ({
           onClick={addLocation}
         >
           Add Location
+        </button>
+      </div>
+      
+      <div className="form__group">
+        <h3 className="heading-tertiary ma-bt-sm">Tour Guides*</h3>
+        <p className="form__helper-text">Add at least one guide by email. You'll be added automatically as the lead guide.</p>
+        
+        {formData.guides.map((guide, index) => (
+          <div className="form-row" key={index}>
+            <div className="form__group form__group--inline">
+              <input
+                className="form__input"
+                type="email"
+                placeholder="Guide email (e.g., guide@example.com)"
+                value={guide}
+                onChange={(e) => handleGuideChange(index, e.target.value)}
+                required={!isEdit} // Required for new tours
+              />
+              {formData.guides.length > 1 && (
+                <button
+                  type="button"
+                  className="btn btn--small btn--red"
+                  onClick={() => removeGuide(index)}
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+        <button
+          type="button"
+          className="btn btn--small btn--green"
+          onClick={addGuide}
+        >
+          Add Guide
         </button>
       </div>
 
