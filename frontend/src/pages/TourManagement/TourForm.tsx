@@ -658,29 +658,32 @@ const TourForm: React.FC<TourFormProps> = ({
         <h3 className="heading-tertiary ma-bt-sm">Tour Guides*</h3>
         <p className="form__helper-text">Add at least one guide by email. You'll be added automatically as the lead guide.</p>
         
-        {formData.guides.map((guide, index) => (
-          <div className="form-row" key={index}>
-            <div className="form__group form__group--inline">
-              <input
-                className="form__input"
-                type="email"
-                placeholder="Guide email (e.g., guide@example.com)"
-                value={guide}
-                onChange={(e) => handleGuideChange(index, e.target.value)}
-                required={!isEdit} // Required for new tours
-              />
-              {formData.guides.length > 1 && (
-                <button
-                  type="button"
-                  className="btn btn--small btn--red"
-                  onClick={() => removeGuide(index)}
-                >
-                  Remove
-                </button>
-              )}
+        <div className="guide-list">
+          {formData.guides.map((guide, index) => (
+            <div className="guide-container" key={index}>
+              <div className="guide-input-group">
+                <input
+                  className="form__input"
+                  type="email"
+                  placeholder="Guide email (e.g., guide@example.com)"
+                  value={guide}
+                  onChange={(e) => handleGuideChange(index, e.target.value)}
+                  required={!isEdit} // Required for new tours
+                />
+                
+                {formData.guides.length > 1 && (
+                  <button
+                    type="button"
+                    className="btn btn--small btn--red guide-remove-btn"
+                    onClick={() => removeGuide(index)}
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
         <button
           type="button"
           className="btn btn--small btn--green"
