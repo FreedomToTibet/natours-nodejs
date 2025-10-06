@@ -83,7 +83,18 @@ export const createOne = (Model) => catchAsync(async (req, res, next) => {
 
 export const getOne = (Model, populateOptions) => catchAsync(async (req, res, next) => {
 	let query = Model.findById(req.params.id);
+	
+	// If it's a Tour model, always populate guides with needed fields
+	if (Model.modelName === 'Tour') {
+		query = query.populate({
+			path: 'guides',
+			select: 'name email photo role'
+		});
+	}
+	
+	// Apply any additional populate options
 	if (populateOptions) query = query.populate(populateOptions);
+	
 	const doc = await query;
 
 	if (!doc) {
@@ -109,6 +120,14 @@ export const getAll = (Model) => catchAsync(async (req, res, next) => {
 		.sort()
 		.limitFields()
 		.paginate();
+		
+	// If it's a Tour model, populate guides with needed fields
+	if (Model.modelName === 'Tour') {
+		features.query = features.query.populate({
+			path: 'guides',
+			select: 'name email photo role'
+		});
+	}
 
 	const doc = await features.query;
 

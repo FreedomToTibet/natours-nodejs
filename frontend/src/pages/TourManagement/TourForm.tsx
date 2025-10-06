@@ -91,9 +91,17 @@ const TourForm: React.FC<TourFormProps> = ({
           day: location.day,
           coordinates: location.coordinates
         })),
-        guides: initialData.guides?.map(guide => 
-          typeof guide === 'string' ? guide : guide._id
-        ) || []
+        guides: initialData.guides?.map(guide => {
+          // If guide is an object with an email, use that, otherwise use the ID
+          if (typeof guide === 'object' && guide !== null) {
+            // Always prefer email when available since we're using emails as identifiers
+            console.log('Guide object:', guide);
+            return guide.email || ''; // Return email or empty string if no email
+          }
+          // If it's just a string (already an ID), console log and return empty
+          console.log('Guide ID (should not happen):', guide);
+          return ''; // Return empty since we want emails not IDs
+        }) || [''] // If no guides, add one empty field
       });
     }
   }, [initialData]);
