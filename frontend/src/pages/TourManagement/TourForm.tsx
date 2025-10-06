@@ -694,11 +694,23 @@ const TourForm: React.FC<TourFormProps> = ({
         {isEdit && initialData?.imageCover && (
           <div className="form__current-image">
             <p>Current cover image:</p>
-            <img 
-              src={`/img/tours/${initialData.imageCover}`} 
-              alt="Current cover" 
-              className="form__image-preview" 
-            />
+            <div className="image-container">
+              <img 
+                src={`/img/tours/${initialData.imageCover}`} 
+                alt="Current cover" 
+                className="form__image-preview" 
+              />
+              {formData.imageCover && (
+                <div className="new-image-preview">
+                  <p>New image to upload:</p>
+                  <img 
+                    src={URL.createObjectURL(formData.imageCover)} 
+                    alt="New cover preview" 
+                    className="form__image-preview" 
+                  />
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -723,6 +735,21 @@ const TourForm: React.FC<TourFormProps> = ({
                   key={i}
                   src={`/img/tours/${image}`} 
                   alt={`Tour ${i+1}`} 
+                  className="form__image-preview" 
+                />
+              ))}
+            </div>
+          </div>
+        )}
+        {formData.images && formData.images.length > 0 && (
+          <div className="form__current-images">
+            <p>New images to upload:</p>
+            <div className="form__images-preview">
+              {Array.from(formData.images).map((image, i) => (
+                <img 
+                  key={i}
+                  src={URL.createObjectURL(image)} 
+                  alt={`New tour image ${i+1}`} 
                   className="form__image-preview" 
                 />
               ))}
