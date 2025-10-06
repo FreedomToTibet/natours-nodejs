@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Tour } from '../../services';
+import api from '../../services/api';
 
 interface TourFormData {
   name: string;
@@ -40,7 +41,12 @@ const TourForm: React.FC<TourFormProps> = ({
   isEdit = false
 }) => {
   const navigate = useNavigate();
-
+  
+  // State to track guide being edited
+  const [editingGuideIndex, setEditingGuideIndex] = useState<number | null>(null);
+  const [originalGuideEmail, setOriginalGuideEmail] = useState<string>('');
+  const [isVerifyingGuide, setIsVerifyingGuide] = useState<boolean>(false);
+  
   const [formData, setFormData] = useState<TourFormData>({
     name: '',
     duration: 1,
@@ -236,6 +242,90 @@ const TourForm: React.FC<TourFormProps> = ({
       return { ...prev, guides: newGuides };
     });
   };
+  
+  // Start editing a guide
+  const startEditingGuide = (index: number) => {
+    setEditingGuideIndex(index);
+    setOriginalGuideEmail(formData.guides[index]);
+  };
+  
+  // Cancel editing a guide
+  const cancelEditingGuide = () => {
+    // Restore the original email if we were editing
+    if (editingGuideIndex !== null) {
+      setFormData(prev => {
+        const newGuides = [...prev.guides];
+        newGuides[editingGuideIndex] = originalGuideEmail;
+        return { ...prev, guides: newGuides };
+      });
+    }
+    
+    // Reset editing state
+    setEditingGuideIndex(null);
+    setOriginalGuideEmail('');
+  };
+  
+  // Verify and update a guide
+  const verifyAndUpdateGuide = async (index: number) => {
+    const email = formData.guides[index];
+    
+    if (!email || email.trim() === '') {
+      alert('Please enter a valid email address');
+      return;
+    }
+    
+    try {
+      setIsVerifyingGuide(true);
+      
+      console.log('Verifying lead guide with email:', email);
+      
+      // Call API to verify the email belongs to a lead guide using the axios instance
+      const response = await api.post('/users/verify-lead-guide', { email });
+      
+      console.log('API Response:', response);
+      
+      const data = response.data;
+      
+      if (response.status !== 200) {
+        throw new Error(data.message || 'Failed to verify guide');
+      }
+      
+      console.log('API Response data:', data);
+      
+      if (!data.data || !data.data.isLeadGuide) {
+        alert('The email does not belong to a lead guide. Please enter a valid lead guide email.');
+        return;
+      }
+      
+      // If verification is successful, update the guide
+      setEditingGuideIndex(null);
+      setOriginalGuideEmail('');
+      alert('Lead guide updated successfully!');
+      
+    } catch (err: any) {
+      const error = err as any;
+      console.error('Verification error:', error);
+      
+      // More detailed error handling
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        console.error('Error response:', error.response.data);
+        console.error('Status:', error.response.status);
+        alert(`Error: ${error.response?.data?.message || 'Server responded with an error'}`);
+      } else if (error.request) {
+        // The request was made but no response was received
+        console.error('No response received:', error.request);
+        alert('Error: No response received from server. Check your network connection.');
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.error('Error message:', error.message);
+        alert('Error verifying guide: ' + (error.message || 'Unknown error'));
+      }
+    } finally {
+      setIsVerifyingGuide(false);
+    }
+  };
 
   const addGuide = () => {
     setFormData(prev => ({
@@ -246,6 +336,12 @@ const TourForm: React.FC<TourFormProps> = ({
 
   const removeGuide = (index: number) => {
     setFormData(prev => {
+      // Prevent removing if it's the last guide
+      if (prev.guides.length <= 1) {
+        alert('Cannot remove the only guide. A tour must have at least one guide.');
+        return prev;
+      }
+      
       const newGuides = [...prev.guides];
       newGuides.splice(index, 1);
       return { ...prev, guides: newGuides };
@@ -285,9 +381,9 @@ const TourForm: React.FC<TourFormProps> = ({
       return;
     }
     
-    // Validate guides for new tours (at least one guide is required)
+    // Validate guides (at least one guide is required for all tours)
     const validGuides = formData.guides.filter(guide => guide.trim());
-    if (!isEdit && validGuides.length === 0) {
+    if (validGuides.length === 0) {
       alert('At least one guide is required. Please enter a guide email.');
       return;
     }
@@ -669,16 +765,50 @@ const TourForm: React.FC<TourFormProps> = ({
                   value={guide}
                   onChange={(e) => handleGuideChange(index, e.target.value)}
                   required={!isEdit} // Required for new tours
+                  disabled={index === 0 && editingGuideIndex !== 0} // Lead guide email is disabled unless being edited
                 />
                 
-                {formData.guides.length > 1 && (
-                  <button
-                    type="button"
-                    className="btn btn--small btn--red guide-remove-btn"
-                    onClick={() => removeGuide(index)}
-                  >
-                    Remove
-                  </button>
+                {index === 0 ? (
+                  // For lead guide (first guide), show Edit/Update/Cancel buttons
+                  editingGuideIndex === 0 ? (
+                    <div className="guide-button-group">
+                      <button
+                        type="button"
+                        className="btn btn--small btn--green guide-action-btn"
+                        onClick={() => verifyAndUpdateGuide(0)}
+                        disabled={isVerifyingGuide}
+                      >
+                        {isVerifyingGuide ? 'Verifying...' : 'Update'}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn--small btn--grey guide-action-btn"
+                        onClick={cancelEditingGuide}
+                        disabled={isVerifyingGuide}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      className="btn btn--small btn--blue guide-edit-btn"
+                      onClick={() => startEditingGuide(0)}
+                    >
+                      Edit
+                    </button>
+                  )
+                ) : (
+                  // For regular guides, show Remove button
+                  formData.guides.length > 1 && (
+                    <button
+                      type="button"
+                      className="btn btn--small btn--red guide-remove-btn"
+                      onClick={() => removeGuide(index)}
+                    >
+                      Remove
+                    </button>
+                  )
                 )}
               </div>
             </div>

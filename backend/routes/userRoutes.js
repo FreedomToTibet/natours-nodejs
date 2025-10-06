@@ -36,6 +36,12 @@ router.delete(
 	userController.deleteMe
 );
 
+// Special routes for lead guides - accessible to all authenticated users for now
+router.post(
+  '/verify-lead-guide',
+  userController.verifyLeadGuide
+);
+
 // Only admin can access these routes
 router.use(authController.restrictTo('admin'));
 

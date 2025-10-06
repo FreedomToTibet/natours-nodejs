@@ -13,6 +13,42 @@ export const deleteUser = deleteOne(User);
 export const getUser = getOne(User);
 export const getAllUsers = getAll(User);
 
+// Verify if an email belongs to a lead guide
+export const verifyLeadGuide = catchAsync(async (req, res, next) => {
+  try {
+    console.log('Verify lead guide request received:', req.body);
+    
+    // Check if email was provided
+    const { email } = req.body;
+    
+    if (!email) {
+      console.log('No email provided');
+      return next(new AppError('Please provide an email address', 400));
+    }
+    
+    console.log(`Looking up user with email: ${email}`);
+    
+    // Find the user by email
+    const user = await User.findOne({ email });
+    
+    console.log('User found:', user ? `${user.name} (${user.role})` : 'No user found');
+    
+    // Return the result
+    res.status(200).json({
+      status: 'success',
+      data: {
+        isLeadGuide: user && user.role === 'lead-guide',
+        name: user ? user.name : null,
+        email: user ? user.email : null,
+        photo: user ? user.photo : null
+      }
+    });
+  } catch (error) {
+    console.error('Error in verifyLeadGuide:', error);
+    next(error);
+  }
+});
+
 // const multerStorage = multer.diskStorage({
 // 	destination: (req, file, cb) => {
 // 		cb(null, 'public/img/users');

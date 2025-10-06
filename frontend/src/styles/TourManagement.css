@@ -294,7 +294,9 @@ textarea.form__input,
   width: auto; /* Allow the input to size based on the container */
 }
 
-.guide-remove-btn {
+.guide-remove-btn,
+.guide-edit-btn,
+.guide-action-btn {
   flex-shrink: 0;
   height: 3.6rem; /* Set a specific height instead of stretching */
   min-width: 10rem; /* Make the button a bit wider */
@@ -303,4 +305,21 @@ textarea.form__input,
   justify-content: center;
   margin-top: 0; /* Ensure no extra top margin */
   padding: 0 1.5rem; /* Add horizontal padding for more width */
+}
+
+.guide-button-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.guide-action-btn {
+  min-width: 7rem; /* Slightly smaller width for buttons in a group */
+}
+
+.btn--grey {
+  background-color: #888;
+}
+
+.btn--grey:hover {
+  background-color: #777;
 }
