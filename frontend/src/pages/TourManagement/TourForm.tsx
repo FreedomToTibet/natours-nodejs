@@ -467,6 +467,7 @@ const TourForm: React.FC<TourFormProps> = ({
           required
           rows={4}
           placeholder="Detailed description of the tour"
+          style={{ resize: 'none' }}
         />
       </div>
 

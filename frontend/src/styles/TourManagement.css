@@ -80,6 +80,13 @@
   color: #bbb;
 }
 
+/* Disable textarea resizing */
+textarea.form__input,
+.form--tour textarea.form__input {
+  resize: none !important;
+  overflow-y: auto;
+}
+
 .form-group.form-group--horizontal {
   display: flex;
   gap: 2rem;
