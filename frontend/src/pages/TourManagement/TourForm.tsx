@@ -577,28 +577,30 @@ const TourForm: React.FC<TourFormProps> = ({
 
       <div className="form__group">
         <label className="form__label">Start Dates*</label>
-        {formData.startDates.map((date, index) => (
-          <div className="form-row" key={index}>
-            <div className="form__group form__group--inline">
-              <input
-                className="form__input"
-                type="date"
-                value={date}
-                onChange={(e) => handleStartDateChange(index, e.target.value)}
-                required
-              />
-              {formData.startDates.length > 1 && (
-                <button
-                  type="button"
-                  className="btn btn--small btn--red"
-                  onClick={() => removeStartDate(index)}
-                >
-                  Remove
-                </button>
-              )}
+        <div className="date-list">
+          {formData.startDates.map((date, index) => (
+            <div className="date-container" key={index}>
+              <div className="date-input-group">
+                <input
+                  className="form__input"
+                  type="date"
+                  value={date}
+                  onChange={(e) => handleStartDateChange(index, e.target.value)}
+                  required
+                />
+                {formData.startDates.length > 1 && (
+                  <button
+                    type="button"
+                    className="btn btn--small btn--red date-remove-btn"
+                    onClick={() => removeStartDate(index)}
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
         <button
           type="button"
           className="btn btn--small btn--green"

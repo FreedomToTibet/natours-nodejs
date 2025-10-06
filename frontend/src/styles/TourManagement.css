@@ -323,3 +323,38 @@ textarea.form__input,
 .btn--grey:hover {
   background-color: #777;
 }
+
+/* Date section styling */
+.date-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.date-container {
+  margin-bottom: 1rem;
+}
+
+.date-input-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  max-width: 70%; /* Limiting the width of the entire group */
+}
+
+.date-input-group .form__input {
+  flex-grow: 1;
+  width: auto; /* Allow the input to size based on the container */
+}
+
+.date-remove-btn {
+  flex-shrink: 0;
+  height: 3.6rem; /* Set a specific height instead of stretching */
+  min-width: 10rem; /* Make the button a bit wider */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0; /* Ensure no extra top margin */
+  padding: 0 1.5rem; /* Add horizontal padding for more width */
+}
