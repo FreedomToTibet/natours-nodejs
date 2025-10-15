@@ -63,6 +63,55 @@ export const resolveGuideEmails = catchAsync(async (req, res, next) => {
 	next();
 });
 
+	// Admin: Reassign the lead guide of a tour by email
+	export const reassignLeadGuide = catchAsync(async (req, res, next) => {
+		const { id } = req.params;
+		const { email } = req.body || {};
+
+		if (!email) {
+			return next(new AppError('Please provide an email of the new lead guide.', 400));
+		}
+
+		// 1) Find tour
+		const tour = await Tour.findById(id);
+		if (!tour) {
+			return next(new AppError('No tour found with that ID', 404));
+		}
+
+		// 2) Find user by email and validate role
+		const user = await User.findOne({ email });
+		if (!user) {
+			return next(new AppError(`No user found with email ${email}`, 404));
+		}
+		if (user.role !== 'lead-guide') {
+			return next(new AppError('Provided email does not belong to a lead guide.', 400));
+		}
+
+		// 3) Ensure user is at the front of guides array
+		const userIdStr = user._id.toString();
+		const existingIds = (tour.guides || []).map(g => g.toString());
+
+		// Remove any existing occurrence of this user
+		const filtered = existingIds.filter(gid => gid !== userIdStr);
+		// Put new lead guide at the front
+		const newGuides = [user._id, ...filtered];
+
+		tour.guides = newGuides;
+		await tour.save({ validateModifiedOnly: true });
+
+		// Populate minimal guide info for response
+		const updatedTour = await Tour.findById(tour._id).populate({
+			path: 'guides',
+			select: 'name email photo role'
+		});
+
+		res.status(200).json({
+			status: 'success',
+			data: {
+				tour: updatedTour
+			}
+		});
+	});
 // Middleware to automatically add lead-guide as a guide when creating a tour
 export const setLeadGuide = (req, res, next) => {
 	console.log('Setting lead guide...');

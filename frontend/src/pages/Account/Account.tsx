@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useCurrentUser, useUpdateUser, useUpdatePassword, useUserBookings, useUserReviews } from '../../hooks';
+import { adminService } from '../../services/adminService';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { StarRating } from '../../components';
 import { formatCurrency } from '../../utils';
@@ -148,6 +149,241 @@ const Account = () => {
     }
   };
 
+  const ManageToursTab: React.FC = () => {
+    const [tours, setTours] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [email, setEmail] = useState('');
+    const [activeTour, setActiveTour] = useState<string>('');
+
+    useEffect(() => {
+      let mounted = true;
+      (async () => {
+        try {
+          setLoading(true);
+          const data = await adminService.getTours();
+          if (mounted) setTours(data);
+        } finally {
+          if (mounted) setLoading(false);
+        }
+      })();
+      return () => { mounted = false; };
+    }, []);
+
+    return (
+      <div className="user-view__form-container">
+        <h2 className="heading-secondary ma-bt-md">Manage tours</h2>
+        {loading ? (
+          <LoadingSpinner />
+        ) : (
+          <div className="table">
+            <div className="table__row table__row--head">
+              <div>Name</div>
+              <div>Lead guide</div>
+              <div>Actions</div>
+            </div>
+            {tours.map((t) => (
+              <div key={t._id} className="table__row">
+                <div>{t.name}</div>
+                <div>{t.guides?.[0]?.email || t.guides?.[0]?.name || '—'}</div>
+                <div style={{ display: 'flex', gap: '0.8rem' }}>
+                  <input
+                    className="form__input"
+                    type="email"
+                    placeholder="new lead guide email"
+                    value={activeTour === t._id ? email : ''}
+                    onFocus={() => setActiveTour(t._id)}
+                    onChange={(e) => setEmail(e.target.value)}
+                    style={{ maxWidth: '26rem' }}
+                  />
+                  <button className="btn btn--small btn--blue" onClick={async () => {
+                    if (!email.trim()) return;
+                    await adminService.reassignLeadGuide(t._id, email.trim());
+                    const refreshed = await adminService.getTours();
+                    setTours(refreshed);
+                    setEmail('');
+                    setActiveTour('');
+                  }}>Reassign lead</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const ManageUsersTab: React.FC = () => {
+    const [users, setUsers] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [savingId, setSavingId] = useState<string>('');
+
+    useEffect(() => {
+      let mounted = true;
+      (async () => {
+        try {
+          setLoading(true);
+          const data = await adminService.getUsers();
+          if (mounted) setUsers(data);
+        } finally {
+          if (mounted) setLoading(false);
+        }
+      })();
+      return () => { mounted = false; };
+    }, []);
+
+    return (
+      <div className="user-view__form-container">
+        <h2 className="heading-secondary ma-bt-md">Manage users</h2>
+        {loading ? (
+          <LoadingSpinner />
+        ) : (
+          <div className="table">
+            <div className="table__row table__row--head">
+              <div>Name</div>
+              <div>Email</div>
+              <div>Role</div>
+              <div>Actions</div>
+            </div>
+            {users.map((u) => (
+              <div key={u._id} className="table__row">
+                <div>{u.name}</div>
+                <div>{u.email}</div>
+                <div>
+                  <select
+                    value={u.role}
+                    onChange={(e) => setUsers(prev => prev.map(p => p._id === u._id ? { ...p, role: e.target.value } : p))}
+                  >
+                    <option value="user">user</option>
+                    <option value="guide">guide</option>
+                    <option value="lead-guide">lead-guide</option>
+                    <option value="admin">admin</option>
+                  </select>
+                </div>
+                <div>
+                  <button
+                    className="btn btn--small btn--green"
+                    disabled={savingId === u._id}
+                    onClick={async () => {
+                      setSavingId(u._id);
+                      await adminService.updateUserRole(u._id, u.role);
+                      setSavingId('');
+                    }}
+                  >
+                    {savingId === u._id ? 'Saving...' : 'Save'}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const ManageReviewsTab: React.FC = () => {
+    const [reviews, setReviews] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+      let mounted = true;
+      (async () => {
+        try {
+          setLoading(true);
+          const data = await adminService.getAllReviews();
+          if (mounted) setReviews(data);
+        } finally {
+          if (mounted) setLoading(false);
+        }
+      })();
+      return () => { mounted = false; };
+    }, []);
+
+    return (
+      <div className="user-view__form-container">
+        <h2 className="heading-secondary ma-bt-md">Manage reviews</h2>
+        {loading ? (
+          <LoadingSpinner />
+        ) : (
+          <div className="table">
+            <div className="table__row table__row--head">
+              <div>Tour</div>
+              <div>User</div>
+              <div>Rating</div>
+              <div>Review</div>
+              <div>Actions</div>
+            </div>
+            {reviews.map((r) => (
+              <div key={r._id} className="table__row">
+                <div>{r.tour?.name || '—'}</div>
+                <div>{r.user?.name || '—'}</div>
+                <div>{r.rating}</div>
+                <div style={{ maxWidth: '40rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.review}</div>
+                <div>
+                  <button className="btn btn--small btn--red" onClick={async () => {
+                    await adminService.deleteReview(r._id);
+                    setReviews(prev => prev.filter(p => p._id !== r._id));
+                  }}>Delete</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const ManageBookingsTab: React.FC = () => {
+    const [items, setItems] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+      let mounted = true;
+      (async () => {
+        try {
+          setLoading(true);
+          const data = await adminService.getAllBookings();
+          if (mounted) setItems(data);
+        } finally {
+          if (mounted) setLoading(false);
+        }
+      })();
+      return () => { mounted = false; };
+    }, []);
+
+    return (
+      <div className="user-view__form-container">
+        <h2 className="heading-secondary ma-bt-md">Manage bookings</h2>
+        {loading ? (
+          <LoadingSpinner />
+        ) : (
+          <div className="table">
+            <div className="table__row table__row--head">
+              <div>Tour</div>
+              <div>User</div>
+              <div>Price</div>
+              <div>Paid</div>
+              <div>Actions</div>
+            </div>
+            {items.map((b) => (
+              <div key={b._id} className="table__row">
+                <div>{b.tour?.name || '—'}</div>
+                <div>{b.user?.name || '—'}</div>
+                <div>{formatCurrency(b.price)}</div>
+                <div>{b.paid ? 'Yes' : 'No'}</div>
+                <div>
+                  <button className="btn btn--small btn--red" onClick={async () => {
+                    await adminService.deleteBooking(b._id);
+                    setItems(prev => prev.filter(p => p._id !== b._id));
+                  }}>Delete</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const renderTabContent = () => {
     switch (activeTab) {
       case 'settings':
@@ -163,13 +399,13 @@ const Account = () => {
       case 'guide-info':
         return renderGuideInfoTab();
       case 'manage-tours':
-        return renderManageToursTab();
+        return user.role === 'admin' ? <ManageToursTab /> : renderSettingsTab();
       case 'manage-users':
-        return renderManageUsersTab();
+        return user.role === 'admin' ? <ManageUsersTab /> : renderSettingsTab();
       case 'manage-reviews':
-        return renderManageReviewsTab();
+        return user.role === 'admin' ? <ManageReviewsTab /> : renderSettingsTab();
       case 'manage-bookings':
-        return renderManageBookingsTab();
+        return user.role === 'admin' ? <ManageBookingsTab /> : renderSettingsTab();
       default:
         return renderSettingsTab();
     }
@@ -574,61 +810,7 @@ const Account = () => {
     );
   };
 
-  const renderManageToursTab = () => (
-    <div className="user-view__form-container">
-      <h2 className="heading-secondary ma-bt-md">Manage tours</h2>
-      <div className="empty-state">
-        <p className="empty-state__text">
-          Tour management dashboard <br />
-          <span className="empty-state__subtext">
-            Create, edit, and manage all tours in the system.
-          </span>
-        </p>
-      </div>
-    </div>
-  );
-
-  const renderManageUsersTab = () => (
-    <div className="user-view__form-container">
-      <h2 className="heading-secondary ma-bt-md">Manage users</h2>
-      <div className="empty-state">
-        <p className="empty-state__text">
-          User management dashboard <br />
-          <span className="empty-state__subtext">
-            View and manage all user accounts in the system.
-          </span>
-        </p>
-      </div>
-    </div>
-  );
-
-  const renderManageReviewsTab = () => (
-    <div className="user-view__form-container">
-      <h2 className="heading-secondary ma-bt-md">Manage reviews</h2>
-      <div className="empty-state">
-        <p className="empty-state__text">
-          Review management dashboard <br />
-          <span className="empty-state__subtext">
-            Moderate and manage all reviews in the system.
-          </span>
-        </p>
-      </div>
-    </div>
-  );
-
-  const renderManageBookingsTab = () => (
-    <div className="user-view__form-container">
-      <h2 className="heading-secondary ma-bt-md">Manage bookings</h2>
-      <div className="empty-state">
-        <p className="empty-state__text">
-          Booking management dashboard <br />
-          <span className="empty-state__subtext">
-            View and manage all bookings in the system.
-          </span>
-        </p>
-      </div>
-    </div>
-  );
+  // End admin tab components
 
   return (
     <main className="main">

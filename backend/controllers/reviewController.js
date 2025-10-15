@@ -11,6 +11,9 @@ export const getAllReviews = getAll(Review);
 
 // Middleware to check if user owns the review
 export const checkReviewOwnership = catchAsync(async (req, res, next) => {
+  // Admins can manage any review
+  if (req.user && req.user.role === 'admin') return next();
+
   const review = await Review.findById(req.params.id);
   
   if (!review) {

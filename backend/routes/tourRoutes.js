@@ -28,7 +28,7 @@ router
   .route('/my-guide-tours')
   .get(
     authController.protect,
-    authController.restrictTo('guide', 'lead-guide'),
+    authController.restrictTo('guide', 'lead-guide', 'admin'),
     tourController.getMyGuideTours
   );
 
@@ -69,5 +69,13 @@ router
     authController.restrictTo('admin', 'lead-guide'),
     tourController.deleteTour
   );
+
+// Admin-only: reassign lead guide of a tour by email
+router.post(
+  '/:id/reassign-lead-guide',
+  authController.protect,
+  authController.restrictTo('admin'),
+  tourController.reassignLeadGuide
+);
 
 export default router;

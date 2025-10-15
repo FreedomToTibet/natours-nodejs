@@ -12,3 +12,4 @@ export { default as Signup } from './Signup';
 export { default as Tour } from './Tour';
 export { default as CreateTour } from './TourManagement/CreateTour';
 export { default as EditTour } from './TourManagement/EditTour';
+export { default as AdminDashboard } from './Admin/AdminDashboard';
