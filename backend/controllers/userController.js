@@ -7,8 +7,57 @@ import sharp from 'sharp';
 
 import { deleteOne, updateOne, getOne, getAll } from './handlerFactory.js';
 
-export const updateUser = updateOne(User); // doesn't update password
-export const deleteUser = deleteOne(User);
+// Helper to count active admins
+const countActiveAdmins = async () => {
+	return User.countDocuments({ role: 'admin', active: { $ne: false } });
+};
+
+// Prevent demoting the last remaining admin
+export const updateUser = catchAsync(async (req, res, next) => {
+	const targetUserId = req.params.id;
+
+	// If role is being changed and target is admin, ensure not last admin
+	if (Object.prototype.hasOwnProperty.call(req.body, 'role')) {
+		const userBefore = await User.findById(targetUserId).select('role active');
+		if (userBefore && userBefore.role === 'admin' && req.body.role !== 'admin') {
+			const adminCount = await countActiveAdmins();
+			if (adminCount <= 1) {
+				return next(new AppError('Operation blocked: cannot demote the last remaining admin.', 400));
+			}
+		}
+	}
+
+	const updated = await User.findByIdAndUpdate(targetUserId, req.body, {
+		new: true,
+		runValidators: true,
+	});
+
+	if (!updated) {
+		return next(new AppError('No document found with that ID', 404));
+	}
+
+	res.status(200).json({
+		status: 'success',
+		data: { data: updated },
+	});
+});
+
+// Prevent deleting the last remaining admin
+export const deleteUser = catchAsync(async (req, res, next) => {
+	const target = await User.findById(req.params.id).select('role active');
+	if (target && target.role === 'admin') {
+		const adminCount = await countActiveAdmins();
+		if (adminCount <= 1) {
+			return next(new AppError('Operation blocked: cannot delete the last remaining admin.', 400));
+		}
+	}
+
+	const doc = await User.findByIdAndDelete(req.params.id);
+	if (!doc) {
+		return next(new AppError('No document found with that ID', 404));
+	}
+	res.status(204).json({ status: 'success', data: null });
+});
 
 export const getUser = getOne(User);
 export const getAllUsers = getAll(User);
@@ -147,7 +196,16 @@ export const updateMe = catchAsync(async (req, res, next) => {
 });
 
 export const deleteMe = catchAsync(async (req, res, next) => {
-	await User.findByIdAndUpdate(req.user.id, { active: false });
+		// Prevent deactivating the last remaining admin
+		const me = await User.findById(req.user.id).select('role active');
+		if (me && me.role === 'admin') {
+			const adminCount = await countActiveAdmins();
+			if (adminCount <= 1) {
+				return next(new AppError('Operation blocked: cannot deactivate the last remaining admin.', 400));
+			}
+		}
+
+		await User.findByIdAndUpdate(req.user.id, { active: false });
 
 	res.status(204).json({
 		status: 'success',

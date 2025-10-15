@@ -5,6 +5,7 @@ import { adminService } from '../../services/adminService';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { StarRating } from '../../components';
 import { formatCurrency } from '../../utils';
+import { toast } from 'react-toastify';
 import type { UpdateUserData, UpdatePasswordData } from '../../services';
 
 // Constant for sessionStorage key
@@ -17,8 +18,6 @@ const Account = () => {
   const { data: reviews = [], isLoading: reviewsLoading } = useUserReviews();
   const updateUserMutation = useUpdateUser();
   const updatePasswordMutation = useUpdatePassword();
-  
-  // Get active tab from multiple sources with priority:
   // 1. Navigation state (when navigating programmatically with state)
   // 2. sessionStorage (for browser back/forward navigation)
   // 3. Default to 'settings' if nothing is found
@@ -264,9 +263,16 @@ const Account = () => {
                     className="btn btn--small btn--green"
                     disabled={savingId === u._id}
                     onClick={async () => {
-                      setSavingId(u._id);
-                      await adminService.updateUserRole(u._id, u.role);
-                      setSavingId('');
+                      try {
+                        setSavingId(u._id);
+                        await adminService.updateUserRole(u._id, u.role);
+                        toast.success('User role updated');
+                      } catch (err: any) {
+                        const msg = err?.response?.data?.message || 'Failed to update user role';
+                        toast.error(msg);
+                      } finally {
+                        setSavingId('');
+                      }
                     }}
                   >
                     {savingId === u._id ? 'Saving...' : 'Save'}
