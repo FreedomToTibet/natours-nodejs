@@ -154,6 +154,8 @@ const Account = () => {
     const [loading, setLoading] = useState(true);
     const [email, setEmail] = useState('');
     const [activeTour, setActiveTour] = useState<string>('');
+    const [savingId, setSavingId] = useState<string>('');
+    const [reassignError, setReassignError] = useState<string>('');
 
     useEffect(() => {
       let mounted = true;
@@ -192,18 +194,42 @@ const Account = () => {
                     placeholder="new lead guide email"
                     value={activeTour === t._id ? email : ''}
                     onFocus={() => setActiveTour(t._id)}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => { setEmail(e.target.value); if (reassignError) setReassignError(''); }}
                     style={{ maxWidth: '26rem' }}
                   />
-                  <button className="btn btn--small btn--blue" onClick={async () => {
-                    if (!email.trim()) return;
-                    await adminService.reassignLeadGuide(t._id, email.trim());
-                    const refreshed = await adminService.getTours();
-                    setTours(refreshed);
-                    setEmail('');
-                    setActiveTour('');
-                  }}>Reassign lead</button>
+                  <button className="btn btn--small btn--blue" disabled={savingId === t._id} onClick={async () => {
+                    if (activeTour !== t._id) setActiveTour(t._id);
+                    const value = email.trim();
+                    if (!value) {
+                      setReassignError('Please enter an email address');
+                      return;
+                    }
+                    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+                    if (!emailOk) {
+                      setReassignError('Please enter a valid email address');
+                      return;
+                    }
+                    try {
+                      setSavingId(t._id);
+                      await adminService.reassignLeadGuide(t._id, value);
+                      const refreshed = await adminService.getTours();
+                      setTours(refreshed);
+                      toast.success('Lead guide reassigned');
+                      setEmail('');
+                      setActiveTour('');
+                      setReassignError('');
+                    } catch (err: any) {
+                      const msg = err?.response?.data?.message || 'Failed to reassign lead guide';
+                      setReassignError(msg);
+                      toast.error(msg);
+                    } finally {
+                      setSavingId('');
+                    }
+                  }}>{savingId === t._id ? 'Saving...' : 'Reassign lead'}</button>
                 </div>
+                {activeTour === t._id && reassignError && (
+                  <div style={{ color: '#ff4d4f', fontSize: '1.2rem', marginTop: '0.6rem' }}>{reassignError}</div>
+                )}
               </div>
             ))}
           </div>
