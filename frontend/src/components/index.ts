@@ -11,3 +11,4 @@ export { default as LoadingSpinner } from './LoadingSpinner';
 export { default as ProtectedRoute } from './ProtectedRoute';
 export { StarRating } from './StarRating';
 export { default } from './AppLayout';
+export { default as ConfirmModal } from './ConfirmModal';

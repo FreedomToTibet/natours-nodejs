@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { useCurrentUser, useUpdateUser, useUpdatePassword, useUserBookings, useUserReviews } from '../../hooks';
 import { adminService } from '../../services/adminService';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import { ConfirmModal } from '../../components';
 import { StarRating } from '../../components';
 import { formatCurrency } from '../../utils';
 import { toast } from 'react-toastify';
@@ -215,6 +216,7 @@ const Account = () => {
     const [users, setUsers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [savingId, setSavingId] = useState<string>('');
+    const [lastAdminId, setLastAdminId] = useState<string | null>(null);
 
     useEffect(() => {
       let mounted = true;
@@ -222,7 +224,11 @@ const Account = () => {
         try {
           setLoading(true);
           const data = await adminService.getUsers();
-          if (mounted) setUsers(data);
+          if (mounted) {
+            setUsers(data);
+            const activeAdmins = (data || []).filter((u: any) => u.role === 'admin' && u.active !== false);
+            setLastAdminId(activeAdmins.length === 1 ? activeAdmins[0]._id : null);
+          }
         } finally {
           if (mounted) setLoading(false);
         }
@@ -248,15 +254,22 @@ const Account = () => {
                 <div>{u.name}</div>
                 <div>{u.email}</div>
                 <div>
-                  <select
-                    value={u.role}
-                    onChange={(e) => setUsers(prev => prev.map(p => p._id === u._id ? { ...p, role: e.target.value } : p))}
-                  >
-                    <option value="user">user</option>
-                    <option value="guide">guide</option>
-                    <option value="lead-guide">lead-guide</option>
-                    <option value="admin">admin</option>
-                  </select>
+                  {(() => {
+                    const isLastAdminRow = lastAdminId === u._id && u.role === 'admin';
+                    const disabledHint = isLastAdminRow ? 'Cannot demote the last remaining admin' : undefined;
+                    return (
+                      <select
+                        value={u.role}
+                        title={disabledHint}
+                        onChange={(e) => setUsers(prev => prev.map(p => p._id === u._id ? { ...p, role: e.target.value } : p))}
+                      >
+                        <option value="user" disabled={isLastAdminRow}>user</option>
+                        <option value="guide" disabled={isLastAdminRow}>guide</option>
+                        <option value="lead-guide" disabled={isLastAdminRow}>lead-guide</option>
+                        <option value="admin">admin</option>
+                      </select>
+                    );
+                  })()}
                 </div>
                 <div>
                   <button
@@ -289,6 +302,8 @@ const Account = () => {
   const ManageReviewsTab: React.FC = () => {
     const [reviews, setReviews] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [pendingId, setPendingId] = useState<string | null>(null);
 
     useEffect(() => {
       let mounted = true;
@@ -325,13 +340,31 @@ const Account = () => {
                 <div>{r.rating}</div>
                 <div style={{ maxWidth: '40rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.review}</div>
                 <div>
-                  <button className="btn btn--small btn--red" onClick={async () => {
-                    await adminService.deleteReview(r._id);
-                    setReviews(prev => prev.filter(p => p._id !== r._id));
-                  }}>Delete</button>
+                  <button className="btn btn--small btn--red" onClick={() => { setPendingId(r._id); setConfirmOpen(true); }}>Delete</button>
                 </div>
               </div>
             ))}
+            <ConfirmModal
+              isOpen={confirmOpen}
+              title="Delete review?"
+              message="This action cannot be undone."
+              confirmText="Delete"
+              onCancel={() => { setConfirmOpen(false); setPendingId(null); }}
+              onConfirm={async () => {
+                if (!pendingId) return;
+                try {
+                  await adminService.deleteReview(pendingId);
+                  setReviews(prev => prev.filter(p => p._id !== pendingId));
+                  toast.success('Review deleted');
+                } catch (err: any) {
+                  const msg = err?.response?.data?.message || 'Failed to delete review';
+                  toast.error(msg);
+                } finally {
+                  setConfirmOpen(false);
+                  setPendingId(null);
+                }
+              }}
+            />
           </div>
         )}
       </div>
@@ -341,6 +374,8 @@ const Account = () => {
   const ManageBookingsTab: React.FC = () => {
     const [items, setItems] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [pendingId, setPendingId] = useState<string | null>(null);
 
     useEffect(() => {
       let mounted = true;
@@ -377,13 +412,31 @@ const Account = () => {
                 <div>{formatCurrency(b.price)}</div>
                 <div>{b.paid ? 'Yes' : 'No'}</div>
                 <div>
-                  <button className="btn btn--small btn--red" onClick={async () => {
-                    await adminService.deleteBooking(b._id);
-                    setItems(prev => prev.filter(p => p._id !== b._id));
-                  }}>Delete</button>
+                  <button className="btn btn--small btn--red" onClick={() => { setPendingId(b._id); setConfirmOpen(true); }}>Delete</button>
                 </div>
               </div>
             ))}
+            <ConfirmModal
+              isOpen={confirmOpen}
+              title="Delete booking?"
+              message="This action cannot be undone."
+              confirmText="Delete"
+              onCancel={() => { setConfirmOpen(false); setPendingId(null); }}
+              onConfirm={async () => {
+                if (!pendingId) return;
+                try {
+                  await adminService.deleteBooking(pendingId);
+                  setItems(prev => prev.filter(p => p._id !== pendingId));
+                  toast.success('Booking deleted');
+                } catch (err: any) {
+                  const msg = err?.response?.data?.message || 'Failed to delete booking';
+                  toast.error(msg);
+                } finally {
+                  setConfirmOpen(false);
+                  setPendingId(null);
+                }
+              }}
+            />
           </div>
         )}
       </div>
