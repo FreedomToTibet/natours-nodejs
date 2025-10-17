@@ -172,7 +172,7 @@ const Account = () => {
     }, []);
 
     return (
-      <div className="user-view__form-container">
+      <div className="user-view__form-container" style={{ maxWidth: '105rem', padding: '0 2rem' }}>
         <h2 className="heading-secondary ma-bt-md">Manage tours</h2>
         {loading ? (
           <LoadingSpinner />
@@ -181,13 +181,13 @@ const Account = () => {
             <div className="table__row table__row--head">
               <div>Name</div>
               <div>Lead guide</div>
-              <div>Actions</div>
+              <div style={{ width: '100%' }}>Actions</div>
             </div>
             {tours.map((t) => (
               <div key={t._id} className="table__row">
                 <div>{t.name}</div>
                 <div>{t.guides?.[0]?.email || t.guides?.[0]?.name || '—'}</div>
-                <div style={{ display: 'flex', gap: '0.8rem' }}>
+                <div style={{ display: 'flex', gap: '1rem', width: '100%' }}>
                   <input
                     className="form__input"
                     type="email"
@@ -195,9 +195,9 @@ const Account = () => {
                     value={activeTour === t._id ? email : ''}
                     onFocus={() => setActiveTour(t._id)}
                     onChange={(e) => { setEmail(e.target.value); if (reassignError) setReassignError(''); }}
-                    style={{ maxWidth: '26rem' }}
+                    style={{ minWidth: '20rem', flex: 1, maxWidth: '46rem', height: '4rem', fontSize: '1.4rem' }}
                   />
-                  <button className="btn btn--small btn--blue" disabled={savingId === t._id} onClick={async () => {
+                  <button className="btn btn--small btn--blue" style={{ minWidth: '10.5rem', whiteSpace: 'nowrap' }} disabled={savingId === t._id} onClick={async () => {
                     if (activeTour !== t._id) setActiveTour(t._id);
                     const value = email.trim();
                     if (!value) {

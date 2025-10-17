@@ -962,7 +962,7 @@ body {
 .table__row {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: 1fr; /* each child cell takes equal width */
+  grid-template-columns: 1.8fr 1.8fr 3.5fr; /* more space for actions column */
   gap: 1.2rem;
   align-items: center;
   padding: 1.2rem 1.6rem;
