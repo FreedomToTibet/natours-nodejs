@@ -122,6 +122,7 @@ body {
     to(#28b487)
   );
   background-image: linear-gradient(to right, #7dd56f, #28b487);
+  background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
   letter-spacing: 0.1rem;
@@ -938,6 +939,73 @@ body {
 }
 .nav__el:not(:last-child) {
   margin-right: 3rem;
+}
+
+/*
+  Lightweight admin table styles
+  Reused across Account admin tabs and AdminDashboard markup
+  Markup shape expected:
+    <div class="table">
+      <div class="table__row table__row--head"> <div/> <div/> ... </div>
+      <div class="table__row"> <div/> <div/> ... </div>
+    </div>
+*/
+.table {
+  width: 100%;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  overflow: hidden; /* round header corners */
+  font-size: 1.4rem;
+}
+
+.table__row {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr; /* each child cell takes equal width */
+  gap: 1.2rem;
+  align-items: center;
+  padding: 1.2rem 1.6rem;
+  border-top: 1px solid #eee;
+}
+
+.table__row:first-child {
+  border-top: none;
+}
+
+.table__row--head {
+  background: #f7f7f7;
+  color: #444;
+  font-weight: 700;
+}
+
+.table__row > div {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Inputs and buttons inside table actions align visually */
+.table__row .form__input {
+  max-width: 26rem;
+  padding: 0.8rem 1rem;
+  font-size: 1.3rem;
+}
+
+.table__row .btn.btn--small {
+  line-height: 1.1;
+}
+
+@media only screen and (max-width: 43.75em) { /* ~700px */
+  .table__row {
+    grid-auto-flow: row;
+    grid-auto-rows: auto;
+    gap: 0.8rem;
+    align-items: start;
+  }
+  .table__row > div {
+    white-space: normal;
+  }
 }
 @media only screen and (max-width: 37.5em) {
   .nav__el:not(:last-child) {
