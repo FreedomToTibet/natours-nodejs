@@ -365,7 +365,13 @@ const Account = () => {
               <div key={r._id} className="admin-block">
                 <div className="admin-block__row"><strong>Tour:</strong> <span>{r.tour?.name || (r.tour && typeof r.tour === 'string' ? `Tour ID: ${r.tour.slice(0,8)}...` : '—')}</span></div>
                 <div className="admin-block__row"><strong>User:</strong> <span>{r.user?.name || '—'}</span></div>
-                <div className="admin-block__row"><strong>Rating:</strong> <span>{r.rating}</span></div>
+                <div className="admin-block__row">
+                <strong style={{ 
+                  color: r.rating >= 4 ? '#55c57a' : // green
+                         r.rating === 3 ? '#ffd700' : // yellow
+                         '#ff4d4f' // red
+                }}>Rating:</strong> <span>{r.rating}</span>
+                </div>
                 <div className="admin-block__row admin-block__row--multiline"><strong>Review:</strong> <span>{r.review || '—'}</span></div>
                 <div className="admin-block__actions">
                   <button className="btn btn--small btn--red" onClick={() => { setPendingId(r._id); setConfirmOpen(true); }}>Delete</button>
