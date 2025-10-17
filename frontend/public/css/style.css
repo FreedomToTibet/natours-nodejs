@@ -1007,6 +1007,44 @@ body {
     white-space: normal;
   }
 }
+
+/* Admin stacked block layout (used for Manage reviews) */
+/* Rating text colors (Manage reviews table) */
+.rating-text--good { color: #155724; }
+.rating-text--ok { color: #856404; }
+.rating-text--bad { color: #721c24; }
+
+/* Admin stacked block layout (Manage reviews) */
+.admin-block {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 1.2rem 1.6rem;
+  margin-bottom: 1.2rem;
+}
+.admin-block__row {
+  display: grid;
+  grid-template-columns: 10rem 1fr;
+  gap: 1rem;
+  align-items: start;
+  font-size: 1.4rem;
+  margin: 0.2rem 0;
+}
+.admin-block__row strong {
+  color: #444;
+  font-weight: 700;
+}
+.admin-block__row--multiline span {
+  white-space: pre-line;
+}
+.admin-block__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.8rem;
+}
+@media only screen and (max-width: 43.75em) {
+  .admin-block__row { grid-template-columns: 1fr; }
+}
 @media only screen and (max-width: 37.5em) {
   .nav__el:not(:last-child) {
     margin-right: 0;

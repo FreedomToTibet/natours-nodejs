@@ -333,15 +333,24 @@ const Account = () => {
 
     useEffect(() => {
       let mounted = true;
-      (async () => {
+      
+      const loadReviews = async () => {
         try {
           setLoading(true);
           const data = await adminService.getAllReviews();
-          if (mounted) setReviews(data);
+          
+          if (mounted) {
+            console.log('Reviews loaded:', data);
+            setReviews(data);
+          }
+        } catch (err) {
+          console.error('Error loading reviews:', err);
         } finally {
           if (mounted) setLoading(false);
         }
-      })();
+      };
+      
+      loadReviews();
       return () => { mounted = false; };
     }, []);
 
@@ -351,21 +360,14 @@ const Account = () => {
         {loading ? (
           <LoadingSpinner />
         ) : (
-          <div className="table">
-            <div className="table__row table__row--head">
-              <div>Tour</div>
-              <div>User</div>
-              <div>Rating</div>
-              <div>Review</div>
-              <div>Actions</div>
-            </div>
+          <div>
             {reviews.map((r) => (
-              <div key={r._id} className="table__row">
-                <div>{r.tour?.name || '—'}</div>
-                <div>{r.user?.name || '—'}</div>
-                <div>{r.rating}</div>
-                <div style={{ maxWidth: '40rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.review}</div>
-                <div>
+              <div key={r._id} className="admin-block">
+                <div className="admin-block__row"><strong>Tour:</strong> <span>{r.tour?.name || (r.tour && typeof r.tour === 'string' ? `Tour ID: ${r.tour.slice(0,8)}...` : '—')}</span></div>
+                <div className="admin-block__row"><strong>User:</strong> <span>{r.user?.name || '—'}</span></div>
+                <div className="admin-block__row"><strong>Rating:</strong> <span>{r.rating}</span></div>
+                <div className="admin-block__row admin-block__row--multiline"><strong>Review:</strong> <span>{r.review || '—'}</span></div>
+                <div className="admin-block__actions">
                   <button className="btn btn--small btn--red" onClick={() => { setPendingId(r._id); setConfirmOpen(true); }}>Delete</button>
                 </div>
               </div>
