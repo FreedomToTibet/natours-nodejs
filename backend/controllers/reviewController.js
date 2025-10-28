@@ -97,8 +97,13 @@ export const getUserReviews = catchAsync(async (req, res, next) => {
 
 // Check if user can review a tour (must have a paid booking)
 export const checkCanReview = catchAsync(async (req, res, next) => {
-  const { tourId } = req.params;
+  // Support both nested route params and direct body payloads
+  const tourId = req.params.tourId || req.body.tour;
   const userId = req.user.id;
+
+  if (!tourId) {
+    return next(new AppError('A tourId is required to create a review', 400));
+  }
 
   // Check if user has a paid booking for this tour
   const booking = await Booking.findOne({
@@ -121,6 +126,7 @@ export const checkCanReview = catchAsync(async (req, res, next) => {
     return next(new AppError('You have already reviewed this tour', 400));
   }
 
+  // Normalize request body
   req.body.tour = tourId;
   req.body.user = userId;
   next();

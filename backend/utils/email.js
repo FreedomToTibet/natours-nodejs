@@ -18,11 +18,11 @@ export default class Email {
 
   newTransport() {
     if (process.env.NODE_ENV === 'production') {
-      // Brevo in production
-      console.log('Using Brevo (production)');
+      // Brevo
+			console.log('production');
       return nodemailer.createTransport({
         host: process.env.BREVO_HOST,
-        port: process.env.BREVO_PORT,
+				port: process.env.BREVO_PORT,
         auth: {
           user: process.env.BREVO_LOGIN,
           pass: process.env.BREVO_PASSWORD,
@@ -30,14 +30,12 @@ export default class Email {
       });
     }
 
-    // Use Brevo in development too (instead of Mailtrap)
-    console.log('Using Brevo (development)');
     return nodemailer.createTransport({
-      host: process.env.BREVO_HOST,
-      port: process.env.BREVO_PORT,
+      host: process.env.EMAIL_HOST,
+      port: process.env.EMAIL_PORT,
       auth: {
-        user: process.env.BREVO_LOGIN,
-        pass: process.env.BREVO_PASSWORD,
+        user: process.env.EMAIL_USERNAME,
+        pass: process.env.EMAIL_PASSWORD,
       },
     });
   }
@@ -66,10 +64,9 @@ export default class Email {
   async sendWelcome() {
     try {
       await this.send('welcome', 'Welcome to the Natours Family!');
-      console.log('Welcome email sent successfully');
     } catch (err) {
-      console.error('Email sending failed:', err.message);
-      // Don't throw error - just log it so signup can continue
+      console.error('Email error:', err);
+      // Continue without sending email
     }
   }
 

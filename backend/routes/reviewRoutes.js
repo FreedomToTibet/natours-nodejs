@@ -14,6 +14,9 @@ router
   .post(
     authController.restrictTo('user'),
     reviewController.setTourUserIds,
+    // Enforce that users can only review tours they've paid for,
+    // including via nested route /tours/:tourId/reviews
+    reviewController.checkCanReview,
     reviewController.createReview
   );
 
