@@ -38,12 +38,14 @@ const createSendToken = (user, statusCode, res) => {
 };
 
 export const signup = catchAsync(async (req, res) => {
+  // Important: Do NOT allow clients to set role during signup
+  // Always create as a regular user; admins can promote later via admin-only routes
   const newUser = await User.create({
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
-    role: req.body.role,
+    // role intentionally omitted (defaults to 'user' per schema)
   });
   
   // Send response immediately, then try to send email asynchronously
