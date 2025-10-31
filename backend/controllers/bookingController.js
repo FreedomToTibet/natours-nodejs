@@ -375,6 +375,10 @@ export const getTourParticipants = catchAsync(async (req, res, next) => {
     path: 'tour',
     select: 'name startDates duration'
   })
+  .populate({
+    path: 'checkedInBy',
+    select: 'name'
+  })
   .select('-__v');
 
   res.status(200).json({
@@ -382,6 +386,104 @@ export const getTourParticipants = catchAsync(async (req, res, next) => {
     results: bookings.length,
     data: {
       participants: bookings
+    }
+  });
+});
+
+// Check-in a participant for a tour
+export const checkInParticipant = catchAsync(async (req, res, next) => {
+  const { tourId, bookingId } = req.params;
+  
+  // First check if the current user is a guide for this tour
+  const tour = await Tour.findById(tourId).populate('guides');
+  if (!tour) {
+    return next(new AppError('No tour found with that ID', 404));
+  }
+  
+  // Check if current user is a guide for this tour
+  const isGuideForTour = tour.guides.some(guide => guide._id.toString() === req.user.id);
+  if (!isGuideForTour && req.user.role !== 'lead-guide' && req.user.role !== 'admin') {
+    return next(new AppError('You are not authorized to check-in participants for this tour', 403));
+  }
+  
+  // Find the booking and update check-in status
+  const booking = await Booking.findOneAndUpdate(
+    { 
+      _id: bookingId, 
+      tour: tourId,
+      paid: true 
+    },
+    { 
+      checkedIn: true,
+      checkedInAt: new Date(),
+      checkedInBy: req.user.id
+    },
+    { new: true }
+  )
+  .populate({
+    path: 'user',
+    select: 'name email photo'
+  })
+  .populate({
+    path: 'checkedInBy',
+    select: 'name'
+  });
+
+  if (!booking) {
+    return next(new AppError('No booking found with that ID for this tour', 404));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      booking
+    }
+  });
+});
+
+// Check-out a participant (undo check-in)
+export const checkOutParticipant = catchAsync(async (req, res, next) => {
+  const { tourId, bookingId } = req.params;
+  
+  // First check if the current user is a guide for this tour
+  const tour = await Tour.findById(tourId).populate('guides');
+  if (!tour) {
+    return next(new AppError('No tour found with that ID', 404));
+  }
+  
+  // Check if current user is a guide for this tour
+  const isGuideForTour = tour.guides.some(guide => guide._id.toString() === req.user.id);
+  if (!isGuideForTour && req.user.role !== 'lead-guide' && req.user.role !== 'admin') {
+    return next(new AppError('You are not authorized to check-out participants for this tour', 403));
+  }
+  
+  // Find the booking and update check-in status
+  const booking = await Booking.findOneAndUpdate(
+    { 
+      _id: bookingId, 
+      tour: tourId,
+      paid: true 
+    },
+    { 
+      checkedIn: false,
+      checkedInAt: null,
+      checkedInBy: null
+    },
+    { new: true }
+  )
+  .populate({
+    path: 'user',
+    select: 'name email photo'
+  });
+
+  if (!booking) {
+    return next(new AppError('No booking found with that ID for this tour', 404));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      booking
     }
   });
 });

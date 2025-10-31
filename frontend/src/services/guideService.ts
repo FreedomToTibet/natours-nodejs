@@ -9,6 +9,12 @@ export interface TourParticipant {
   price: number;
   paid: boolean;
   createdAt: string;
+  checkedIn: boolean;
+  checkedInAt?: string;
+  checkedInBy?: {
+    _id: string;
+    name: string;
+  };
 }
 
 export interface GuideTour extends Omit<Tour, 'guides'> {
@@ -25,6 +31,18 @@ export const guideService = {
   // Get participants for a specific tour
   async getTourParticipants(tourId: string): Promise<{ status: string; results: number; data: { participants: TourParticipant[] } }> {
     const response = await api.get<{ status: string; results: number; data: { participants: TourParticipant[] } }>(`/bookings/tour-participants/${tourId}`);
+    return response.data;
+  },
+
+  // Check-in a participant
+  async checkInParticipant(tourId: string, bookingId: string): Promise<{ status: string; data: { booking: TourParticipant } }> {
+    const response = await api.patch<{ status: string; data: { booking: TourParticipant } }>(`/bookings/tour/${tourId}/checkin/${bookingId}`);
+    return response.data;
+  },
+
+  // Check-out a participant (undo check-in)
+  async checkOutParticipant(tourId: string, bookingId: string): Promise<{ status: string; data: { booking: TourParticipant } }> {
+    const response = await api.patch<{ status: string; data: { booking: TourParticipant } }>(`/bookings/tour/${tourId}/checkout/${bookingId}`);
     return response.data;
   },
 };

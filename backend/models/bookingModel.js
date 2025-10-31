@@ -22,6 +22,17 @@ const bookingSchema = new mongoose.Schema({
 	paid: {
 		type: Boolean,
 		default: true
+	},
+	checkedIn: {
+		type: Boolean,
+		default: false
+	},
+	checkedInAt: {
+		type: Date
+	},
+	checkedInBy: {
+		type: mongoose.Schema.ObjectId,
+		ref: 'User'
 	}
 });
 

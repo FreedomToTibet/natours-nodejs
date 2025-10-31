@@ -17,6 +17,19 @@ router.get(
   bookingController.getTourParticipants
 );
 
+// Check-in and check-out participants for guides
+router.patch(
+  "/tour/:tourId/checkin/:bookingId",
+  authController.restrictTo("guide", "lead-guide", "admin"),
+  bookingController.checkInParticipant
+);
+
+router.patch(
+  "/tour/:tourId/checkout/:bookingId",
+  authController.restrictTo("guide", "lead-guide", "admin"),
+  bookingController.checkOutParticipant
+);
+
 // Allow users to manage their own bookings
 router
 	.route("/:id")

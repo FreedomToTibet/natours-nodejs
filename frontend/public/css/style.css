@@ -2621,3 +2621,133 @@ body {
   font-size: 1.4rem;
   color: #777;
 }
+/* Guide Tour Participant Check-in Styles */
+.participant-compact-card {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.participant-compact-card--checked-in {
+  background-color: #f0f9f0;
+  border: 2px solid #55c57a;
+}
+
+.participant-compact-card__status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  font-size: 1.2rem;
+  color: #55c57a;
+  font-weight: 600;
+}
+
+.participant-compact-card__status small {
+  font-size: 1rem;
+  color: #777;
+  font-weight: 400;
+  margin-left: 0.5rem;
+}
+
+.participant-compact-card__check-icon {
+  width: 1.4rem;
+  height: 1.4rem;
+  fill: #55c57a;
+}
+
+.participant-compact-card__actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.participant-compact-card__actions .btn {
+  min-width: 8rem;
+}
+
+.participants-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.participants-count {
+  font-size: 1.4rem;
+  color: #55c57a;
+  font-weight: 600;
+  background-color: #f0f9f0;
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+}
+
+.participants-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(25rem, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.participant-compact-card {
+  background-color: #fff;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+  text-align: center;
+  border: 2px solid transparent;
+}
+
+.participant-compact-card__photo {
+  width: 6rem;
+  height: 6rem;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 1rem;
+}
+
+.participant-compact-card__info h6 {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.participant-compact-card__info p {
+  font-size: 1.3rem;
+  color: #777;
+  margin-bottom: 0.5rem;
+}
+
+.participant-compact-card__price {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #55c57a;
+}
+
+/* Red button variant for check-out */
+.btn--red {
+  background-color: #e74c3c;
+  color: #fff;
+}
+
+.btn--red:hover {
+  background-color: #c0392b;
+}
+
+.btn--red:focus {
+  background-color: #c0392b;
+}
+
+/* Blue button variant */
+.btn--blue {
+  background-color: #3498db;
+  color: #fff;
+}
+
+.btn--blue:hover {
+  background-color: #2980b9;
+}
+
+.btn--blue:focus {
+  background-color: #2980b9;
+}

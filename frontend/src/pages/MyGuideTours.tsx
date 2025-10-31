@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useMyGuideTours, useTourParticipants, useCurrentUser, useDeleteTour } from '../hooks';
+import { useMyGuideTours, useTourParticipants, useCurrentUser, useDeleteTour, useCheckInParticipant, useCheckOutParticipant } from '../hooks';
 import { LoadingSpinner } from '../components';
 import { formatPrice } from '../utils';
 
@@ -10,11 +10,21 @@ function MyGuideTours() {
   const { data: participants, isLoading: participantsLoading } = useTourParticipants(selectedTourId);
   const { data: currentUser } = useCurrentUser();
   const deleteTourMutation = useDeleteTour();
+  const checkInMutation = useCheckInParticipant();
+  const checkOutMutation = useCheckOutParticipant();
 
   const handleDeleteTour = (tourId: string) => {
     if (window.confirm('Are you sure you want to delete this tour? This action cannot be undone.')) {
       deleteTourMutation.mutate(tourId);
     }
+  };
+
+  const handleCheckIn = (tourId: string, bookingId: string) => {
+    checkInMutation.mutate({ tourId, bookingId });
+  };
+
+  const handleCheckOut = (tourId: string, bookingId: string) => {
+    checkOutMutation.mutate({ tourId, bookingId });
   };
 
   if (toursLoading) return <LoadingSpinner />;
@@ -172,7 +182,7 @@ function MyGuideTours() {
                           ) : (
                             <div className="participants-grid">
                               {participants?.data?.participants?.map((participant) => (
-                                <div key={participant._id} className="participant-compact-card">
+                                <div key={participant._id} className={`participant-compact-card ${participant.checkedIn ? 'participant-compact-card--checked-in' : ''}`}>
                                   <img
                                     src={`/img/users/${participant.user.photo}`}
                                     alt={participant.user.name}
@@ -188,6 +198,38 @@ function MyGuideTours() {
                                     <span className="participant-compact-card__price">
                                       {formatPrice(participant.price)}
                                     </span>
+                                    {participant.checkedIn && (
+                                      <div className="participant-compact-card__status">
+                                        <svg className="participant-compact-card__check-icon">
+                                          <use xlinkHref="/img/icons.svg#icon-check"></use>
+                                        </svg>
+                                        <span>Checked In</span>
+                                        {participant.checkedInAt && (
+                                          <small>
+                                            {new Date(participant.checkedInAt).toLocaleString()}
+                                          </small>
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="participant-compact-card__actions">
+                                    {participant.checkedIn ? (
+                                      <button
+                                        className="btn btn--small btn--red"
+                                        onClick={() => handleCheckOut(selectedTourId, participant._id)}
+                                        disabled={checkOutMutation.isPending}
+                                      >
+                                        {checkOutMutation.isPending ? 'Processing...' : 'Check Out'}
+                                      </button>
+                                    ) : (
+                                      <button
+                                        className="btn btn--small btn--green"
+                                        onClick={() => handleCheckIn(selectedTourId, participant._id)}
+                                        disabled={checkInMutation.isPending}
+                                      >
+                                        {checkInMutation.isPending ? 'Processing...' : 'Check In'}
+                                      </button>
+                                    )}
                                   </div>
                                 </div>
                               ))}
