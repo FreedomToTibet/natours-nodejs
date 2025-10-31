@@ -66,10 +66,24 @@ function MyGuideTours() {
       <div className="user-view">
         <div className="user-view__content">
           <div className="user-view__form-container">
-            <h2 className="heading-secondary ma-bt-md">My Guide Tours</h2>
-            <p className="user-view__subtitle">
-              Tours you are assigned to guide ({tours.length} tour{tours.length !== 1 ? 's' : ''})
-            </p>
+            <div className="guide-tours-header">
+              <div>
+                <h2 className="heading-secondary ma-bt-md">My Guide Tours</h2>
+                <p className="user-view__subtitle">
+                  Tours you are assigned to guide ({tours.length} tour{tours.length !== 1 ? 's' : ''})
+                </p>
+              </div>
+              {currentUser?.role === 'lead-guide' && (
+                <div className="guide-tours-actions">
+                  <Link to="/tours/create" className="btn btn--green">
+                    <svg className="btn__icon">
+                      <use xlinkHref="/img/icons.svg#icon-plus"></use>
+                    </svg>
+                    Create New Tour
+                  </Link>
+                </div>
+              )}
+            </div>
 
             <div className="guide-tours-grid">
               {tours.map((tour) => (
