@@ -161,10 +161,27 @@ export const createUser = (res, req) => {
 	});
 };
 
-export const getMe = (req, res, next) => {
-  req.params.id = req.user.id;
-  next();
-};
+export const getMe = catchAsync(async (req, res, next) => {
+  let selectFields = '';
+  
+  // Include availability fields for guides
+  if (['guide', 'lead-guide', 'admin'].includes(req.user.role)) {
+    selectFields = '+available +availabilityNote +unavailableDates';
+  }
+  
+  const user = await User.findById(req.user.id).select(selectFields);
+  
+  if (!user) {
+    return next(new AppError('User not found', 404));
+  }
+  
+  res.status(200).json({
+    status: 'success',
+    data: {
+      data: user
+    }
+  });
+});
 
 export const updateMe = catchAsync(async (req, res, next) => {
 	// 1) Create error if user POSTs password data
@@ -210,5 +227,149 @@ export const deleteMe = catchAsync(async (req, res, next) => {
 	res.status(204).json({
 		status: 'success',
 		data: null
+	});
+});
+
+// Update guide availability status
+export const updateAvailability = catchAsync(async (req, res, next) => {
+	// Only guides, lead-guides, and admins can update availability
+	if (!['guide', 'lead-guide', 'admin'].includes(req.user.role)) {
+		return next(new AppError('Only guides can update availability status', 403));
+	}
+
+	const { available, availabilityNote } = req.body;
+
+	// Validate input
+	if (typeof available !== 'boolean') {
+		return next(new AppError('Available status must be true or false', 400));
+	}
+
+	const updatedUser = await User.findByIdAndUpdate(
+		req.user.id,
+		{ 
+			available,
+			availabilityNote: availabilityNote || ''
+		},
+		{
+			new: true,
+			runValidators: true,
+			select: '+available +availabilityNote'
+		}
+	);
+
+	res.status(200).json({
+		status: 'success',
+		data: {
+			user: {
+				id: updatedUser._id,
+				name: updatedUser.name,
+				available: updatedUser.available,
+				availabilityNote: updatedUser.availabilityNote
+			}
+		}
+	});
+});
+
+// Add unavailable date range
+export const addUnavailableDate = catchAsync(async (req, res, next) => {
+	// Only guides, lead-guides, and admins can add unavailable dates
+	if (!['guide', 'lead-guide', 'admin'].includes(req.user.role)) {
+		return next(new AppError('Only guides can manage unavailable dates', 403));
+	}
+
+	const { startDate, endDate, reason } = req.body;
+
+	// Validate dates
+	if (!startDate || !endDate) {
+		return next(new AppError('Start date and end date are required', 400));
+	}
+
+	const start = new Date(startDate);
+	const end = new Date(endDate);
+
+	if (start >= end) {
+		return next(new AppError('End date must be after start date', 400));
+	}
+
+	if (start < new Date()) {
+		return next(new AppError('Start date cannot be in the past', 400));
+	}
+
+	const user = await User.findById(req.user.id);
+	
+	// Check for overlapping dates
+	const hasOverlap = user.unavailableDates.some(dateRange => {
+		const existingStart = new Date(dateRange.startDate);
+		const existingEnd = new Date(dateRange.endDate);
+		
+		return (start <= existingEnd && end >= existingStart);
+	});
+
+	if (hasOverlap) {
+		return next(new AppError('Date range overlaps with existing unavailable dates', 400));
+	}
+
+	user.unavailableDates.push({
+		startDate: start,
+		endDate: end,
+		reason: reason || ''
+	});
+
+	await user.save();
+
+	res.status(200).json({
+		status: 'success',
+		data: {
+			unavailableDates: user.unavailableDates
+		}
+	});
+});
+
+// Remove unavailable date range
+export const removeUnavailableDate = catchAsync(async (req, res, next) => {
+	// Only guides, lead-guides, and admins can remove unavailable dates
+	if (!['guide', 'lead-guide', 'admin'].includes(req.user.role)) {
+		return next(new AppError('Only guides can manage unavailable dates', 403));
+	}
+
+	const { dateId } = req.params;
+
+	const user = await User.findById(req.user.id);
+	
+	const dateIndex = user.unavailableDates.findIndex(
+		dateRange => dateRange._id.toString() === dateId
+	);
+
+	if (dateIndex === -1) {
+		return next(new AppError('Unavailable date not found', 404));
+	}
+
+	user.unavailableDates.splice(dateIndex, 1);
+	await user.save();
+
+	res.status(200).json({
+		status: 'success',
+		data: {
+			unavailableDates: user.unavailableDates
+		}
+	});
+});
+
+// Get guide availability info
+export const getMyAvailability = catchAsync(async (req, res, next) => {
+	// Only guides, lead-guides, and admins can view availability
+	if (!['guide', 'lead-guide', 'admin'].includes(req.user.role)) {
+		return next(new AppError('Only guides can view availability status', 403));
+	}
+
+	const user = await User.findById(req.user.id).select('+available +availabilityNote +unavailableDates');
+
+	res.status(200).json({
+		status: 'success',
+		data: {
+			available: user.available,
+			availabilityNote: user.availabilityNote,
+			unavailableDates: user.unavailableDates
+		}
 	});
 });

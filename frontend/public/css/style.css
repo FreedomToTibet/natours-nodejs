@@ -3089,4 +3089,214 @@ ced dropdown styles with hover effects */
     box-shadow: none;
     transform: none;
   }
+}/
+* Guide Availability Styles */
+.availability-status {
+  background-color: #fff;
+  border-radius: 1rem;
+  padding: 2rem;
+  margin-bottom: 3rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.availability-indicator {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  border-radius: 0.8rem;
+  margin-bottom: 2rem;
+}
+
+.availability-indicator.available {
+  background-color: #f0f9f0;
+  border: 2px solid #55c57a;
+}
+
+.availability-indicator.unavailable {
+  background-color: #fdf2f2;
+  border: 2px solid #e74c3c;
+}
+
+.availability-indicator__icon {
+  font-size: 2.4rem;
+}
+
+.availability-indicator__text strong {
+  font-size: 1.8rem;
+  color: #333;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.availability-indicator__text p {
+  font-size: 1.4rem;
+  color: #777;
+  margin: 0;
+}
+
+.availability-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.availability-note {
+  background-color: #fff;
+  border-radius: 1rem;
+  padding: 2rem;
+  margin-bottom: 3rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.form__help {
+  font-size: 1.2rem;
+  color: #999;
+  margin-top: 0.5rem;
+  display: block;
+}
+
+.unavailable-dates-form {
+  background-color: #fff;
+  border-radius: 1rem;
+  padding: 2rem;
+  margin-bottom: 3rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.form__group-inline {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.unavailable-dates-list {
+  background-color: #fff;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.unavailable-dates-grid {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.unavailable-date-card {
+  background-color: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 0.8rem;
+  padding: 1.5rem;
+  transition: all 0.2s ease;
+}
+
+.unavailable-date-card:hover {
+  box-shadow: 0 0.3rem 0.8rem rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.unavailable-date-card.past {
+  opacity: 0.6;
+  background-color: #f5f5f5;
+}
+
+.unavailable-date-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.unavailable-date-card__dates {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.unavailable-date-card__badge {
+  background-color: #999;
+  color: #fff;
+  padding: 0.3rem 0.8rem;
+  border-radius: 1rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.unavailable-date-card__reason {
+  font-size: 1.4rem;
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.unavailable-date-card__actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #777;
+}
+
+.empty-state p {
+  font-size: 1.6rem;
+  margin: 0;
+}
+
+.heading-tertiary {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.ma-bt-sm {
+  margin-bottom: 1.5rem !important;
+}
+
+/* Form input date styling */
+.form__input[type="date"] {
+  cursor: pointer;
+}
+
+.form__input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(0.5);
+}
+
+.form__input[type="date"]:hover::-webkit-calendar-picker-indicator {
+  filter: invert(0.3);
+}
+
+/* Textarea styling */
+.form__input[rows] {
+  resize: vertical;
+  min-height: 8rem;
+}
+
+/* Responsive design for availability */
+@media only screen and (max-width: 56.25em) {
+  .form__group-inline {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .availability-indicator {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+  
+  .availability-actions {
+    justify-content: center;
+  }
+  
+  .unavailable-date-card__header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
 }

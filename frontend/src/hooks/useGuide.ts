@@ -56,3 +56,63 @@ export const useCheckOutParticipant = () => {
     },
   });
 };
+
+// Hook for getting guide availability
+export const useMyAvailability = () => {
+  return useQuery({
+    queryKey: ['myAvailability'],
+    queryFn: () => guideService.getMyAvailability(),
+    staleTime: 2 * 60 * 1000, // 2 minutes
+  });
+};
+
+// Hook for updating availability status
+export const useUpdateAvailability = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: { available: boolean; availabilityNote?: string }) =>
+      guideService.updateAvailability(data),
+    onSuccess: () => {
+      toast.success('Availability status updated successfully!');
+      queryClient.invalidateQueries({ queryKey: ['myAvailability'] });
+      queryClient.invalidateQueries({ queryKey: ['currentUser'] });
+    },
+    onError: (error: Error & { response?: { data?: { message?: string } } }) => {
+      toast.error(error.response?.data?.message || 'Failed to update availability');
+    },
+  });
+};
+
+// Hook for adding unavailable date
+export const useAddUnavailableDate = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: { startDate: string; endDate: string; reason?: string }) =>
+      guideService.addUnavailableDate(data),
+    onSuccess: () => {
+      toast.success('Unavailable date added successfully!');
+      queryClient.invalidateQueries({ queryKey: ['myAvailability'] });
+    },
+    onError: (error: Error & { response?: { data?: { message?: string } } }) => {
+      toast.error(error.response?.data?.message || 'Failed to add unavailable date');
+    },
+  });
+};
+
+// Hook for removing unavailable date
+export const useRemoveUnavailableDate = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (dateId: string) => guideService.removeUnavailableDate(dateId),
+    onSuccess: () => {
+      toast.success('Unavailable date removed successfully!');
+      queryClient.invalidateQueries({ queryKey: ['myAvailability'] });
+    },
+    onError: (error: Error & { response?: { data?: { message?: string } } }) => {
+      toast.error(error.response?.data?.message || 'Failed to remove unavailable date');
+    },
+  });
+};

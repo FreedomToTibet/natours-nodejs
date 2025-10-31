@@ -22,8 +22,7 @@ router.patch(
 
 router.get(
   '/me',
-  userController.getMe,
-  userController.getUser
+  userController.getMe
 );
 router.patch(
 	'/updateMe',
@@ -34,6 +33,31 @@ router.patch(
 router.delete(
 	'/deleteMe',
 	userController.deleteMe
+);
+
+// Guide availability routes
+router.get(
+	'/my-availability',
+	authController.restrictTo('guide', 'lead-guide', 'admin'),
+	userController.getMyAvailability
+);
+
+router.patch(
+	'/update-availability',
+	authController.restrictTo('guide', 'lead-guide', 'admin'),
+	userController.updateAvailability
+);
+
+router.post(
+	'/unavailable-dates',
+	authController.restrictTo('guide', 'lead-guide', 'admin'),
+	userController.addUnavailableDate
+);
+
+router.delete(
+	'/unavailable-dates/:dateId',
+	authController.restrictTo('guide', 'lead-guide', 'admin'),
+	userController.removeUnavailableDate
 );
 
 // Special routes for lead guides/admins

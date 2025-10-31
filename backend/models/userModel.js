@@ -49,6 +49,29 @@ const userSchema = new mongoose.Schema({
 		default: true,
 		select: false,
 	},
+	// Guide availability fields
+	available: {
+		type: Boolean,
+		default: true,
+	},
+	availabilityNote: {
+		type: String,
+		maxlength: [200, 'Availability note must be less than 200 characters'],
+	},
+	unavailableDates: [{
+		startDate: {
+			type: Date,
+			required: true,
+		},
+		endDate: {
+			type: Date,
+			required: true,
+		},
+		reason: {
+			type: String,
+			maxlength: [100, 'Reason must be less than 100 characters'],
+		}
+	}],
 });
 
 userSchema.pre('save', async function (next) {

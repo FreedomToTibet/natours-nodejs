@@ -55,6 +55,7 @@ const Account = () => {
     { id: 'settings', label: 'Settings', icon: 'settings' },
     { id: 'guide-tours', label: 'Guide Schedule', icon: 'map' },
     { id: 'guide-info', label: 'Guide Information', icon: 'user' },
+    { id: 'manage-availability', label: 'My Availability', icon: 'calendar' },
     { id: 'all-reviews', label: 'All Reviews', icon: 'star' },
   ];
 
@@ -492,6 +493,8 @@ const Account = () => {
         return renderGuideToursTab();
       case 'guide-info':
         return renderGuideInfoTab();
+      case 'manage-availability':
+        return renderGuideAvailabilityTab();
       case 'all-reviews':
         return renderAllReviewsTab();
       case 'manage-tours':
@@ -711,6 +714,27 @@ const Account = () => {
         </div>
 
       </div>
+    </div>
+  );
+
+  const renderGuideAvailabilityTab = () => (
+    <div className="user-view__form-container">
+      <h2 className="heading-secondary ma-bt-md">My Availability</h2>
+      <p style={{ fontSize: '1.6rem', color: '#777', marginBottom: '2rem' }}>
+        Manage your availability status and schedule for tour assignments.
+      </p>
+      <div style={{ textAlign: 'center', padding: '3rem' }}>
+        <a 
+          href="/manage-availability" 
+          className="btn btn--green"
+          style={{ textDecoration: 'none' }}
+        >
+          Manage Availability
+        </a>
+      </div>
+      <p style={{ fontSize: '1.4rem', color: '#999', textAlign: 'center' }}>
+        Click above to set your availability status, add unavailable periods, and manage your schedule.
+      </p>
     </div>
   );
 
