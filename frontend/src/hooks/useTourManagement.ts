@@ -54,3 +54,60 @@ export const useDeleteTour = () => {
     },
   });
 };
+
+// Hook for updating tour capacity
+export const useUpdateTourCapacity = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ id, maxGroupSize }: { id: string; maxGroupSize: number }) => 
+      tourService.updateTourCapacity(id, maxGroupSize),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['tours'] });
+      queryClient.invalidateQueries({ queryKey: ['tour', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['myGuideTours'] });
+      toast.success('Tour capacity updated successfully!');
+    },
+    onError: (error: Error & { response?: { data?: { message?: string } } }) => {
+      toast.error(error.response?.data?.message || 'Failed to update tour capacity');
+    },
+  });
+};
+
+// Hook for assigning guide to tour
+export const useAssignGuideToTour = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ id, email }: { id: string; email: string }) => 
+      tourService.assignGuideToTour(id, email),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['tours'] });
+      queryClient.invalidateQueries({ queryKey: ['tour', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['myGuideTours'] });
+      toast.success('Guide assigned successfully!');
+    },
+    onError: (error: Error & { response?: { data?: { message?: string } } }) => {
+      toast.error(error.response?.data?.message || 'Failed to assign guide');
+    },
+  });
+};
+
+// Hook for unassigning guide from tour
+export const useUnassignGuideFromTour = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ id, guideId }: { id: string; guideId: string }) => 
+      tourService.unassignGuideFromTour(id, guideId),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['tours'] });
+      queryClient.invalidateQueries({ queryKey: ['tour', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['myGuideTours'] });
+      toast.success('Guide unassigned successfully!');
+    },
+    onError: (error: Error & { response?: { data?: { message?: string } } }) => {
+      toast.error(error.response?.data?.message || 'Failed to unassign guide');
+    },
+  });
+};

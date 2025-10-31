@@ -3335,4 +3335,173 @@ ced dropdown styles with hover effects */
   .guide-tours-actions {
     align-self: center;
   }
+}/* Tour M
+anagement Panel Styles */
+.guide-tour-card__management-panel {
+  background-color: #f8f9fa;
+  border-top: 1px solid #e0e0e0;
+  padding: 2rem;
+  margin-top: 1rem;
+}
+
+.guide-tour-card__management-panel h4 {
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #55c57a;
+  padding-bottom: 0.5rem;
+}
+
+.management-section {
+  margin-bottom: 2.5rem;
+  background-color: #fff;
+  padding: 1.5rem;
+  border-radius: 0.8rem;
+  border: 1px solid #e0e0e0;
+}
+
+.management-section h5 {
+  font-size: 1.6rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.management-section h6 {
+  font-size: 1.4rem;
+  color: #555;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+/* Capacity Management */
+.capacity-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.capacity-controls span {
+  font-size: 1.4rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.capacity-input-group {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.capacity-input-group .form__input--small {
+  width: 12rem;
+}
+
+/* Guide Management */
+.current-guides {
+  margin-bottom: 2rem;
+}
+
+.guide-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: #f9f9f9;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid #e0e0e0;
+}
+
+.guide-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.guide-photo {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.guide-info strong {
+  font-size: 1.4rem;
+  color: #333;
+  display: block;
+}
+
+.guide-info p {
+  font-size: 1.2rem;
+  color: #777;
+  margin: 0;
+}
+
+.lead-badge {
+  background-color: #55c57a;
+  color: #fff;
+  padding: 0.2rem 0.6rem;
+  border-radius: 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-left: 0.5rem;
+}
+
+.add-guide {
+  border-top: 1px solid #e0e0e0;
+  padding-top: 1.5rem;
+}
+
+.guide-input-group {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.guide-input-group .form__input--small {
+  flex: 1;
+  min-width: 20rem;
+}
+
+/* Enhanced management buttons */
+.guide-tour-card__management {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.guide-tour-card__management .btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.guide-tour-card__icon {
+  width: 1.4rem;
+  height: 1.4rem;
+  fill: currentColor;
+}
+
+/* Responsive design for management panel */
+@media only screen and (max-width: 56.25em) {
+  .capacity-input-group,
+  .guide-input-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .guide-item {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .guide-tour-card__management {
+    justify-content: center;
+  }
+  
+  .guide-input-group .form__input--small {
+    min-width: auto;
+  }
 }

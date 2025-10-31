@@ -226,6 +226,48 @@ export const deleteTour = async (id: string): Promise<void> => {
   }
 };
 
+// Update tour capacity (lead-guide and admin only)
+export const updateTourCapacity = async (id: string, maxGroupSize: number): Promise<Tour> => {
+  try {
+    const response = await api.patch(`/tours/${id}/capacity`, { maxGroupSize });
+    return response.data.data.tour;
+  } catch (error: unknown) {
+    console.error('Error updating tour capacity:', error);
+    if (error instanceof Error) {
+      throw new Error(`Failed to update tour capacity: ${error.message}`);
+    }
+    throw new Error('Failed to update tour capacity: Unknown error');
+  }
+};
+
+// Assign guide to tour (lead-guide and admin only)
+export const assignGuideToTour = async (id: string, email: string): Promise<Tour> => {
+  try {
+    const response = await api.post(`/tours/${id}/assign-guide`, { email });
+    return response.data.data.tour;
+  } catch (error: unknown) {
+    console.error('Error assigning guide to tour:', error);
+    if (error instanceof Error) {
+      throw new Error(`Failed to assign guide: ${error.message}`);
+    }
+    throw new Error('Failed to assign guide: Unknown error');
+  }
+};
+
+// Unassign guide from tour (lead-guide and admin only)
+export const unassignGuideFromTour = async (id: string, guideId: string): Promise<Tour> => {
+  try {
+    const response = await api.delete(`/tours/${id}/guides/${guideId}`);
+    return response.data.data.tour;
+  } catch (error: unknown) {
+    console.error('Error unassigning guide from tour:', error);
+    if (error instanceof Error) {
+      throw new Error(`Failed to unassign guide: ${error.message}`);
+    }
+    throw new Error('Failed to unassign guide: Unknown error');
+  }
+};
+
 // Export the tour service with all methods
 export const tourService = {
   getAllTours,
@@ -233,5 +275,8 @@ export const tourService = {
   getTourBySlug,
   createTour,
   updateTour,
-  deleteTour
+  deleteTour,
+  updateTourCapacity,
+  assignGuideToTour,
+  unassignGuideFromTour
 };

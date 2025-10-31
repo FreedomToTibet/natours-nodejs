@@ -444,3 +444,140 @@ export const getMyGuideTours = catchAsync(async (req, res, next) => {
 		}
 	});
 });
+
+// Update tour capacity (lead-guide and admin only)
+export const updateTourCapacity = catchAsync(async (req, res, next) => {
+	const { id } = req.params;
+	const { maxGroupSize } = req.body;
+
+	// Validate input
+	if (!maxGroupSize || maxGroupSize < 1 || maxGroupSize > 50) {
+		return next(new AppError('Max group size must be between 1 and 50', 400));
+	}
+
+	// Find tour and check if user is lead-guide for this tour or admin
+	const tour = await Tour.findById(id).populate('guides');
+	if (!tour) {
+		return next(new AppError('No tour found with that ID', 404));
+	}
+
+	// Check authorization - must be lead-guide of this tour or admin
+	const isLeadGuide = tour.guides.length > 0 && tour.guides[0]._id.toString() === req.user.id;
+	if (!isLeadGuide && req.user.role !== 'admin') {
+		return next(new AppError('Only the lead guide of this tour or admin can update capacity', 403));
+	}
+
+	// Update capacity
+	tour.maxGroupSize = maxGroupSize;
+	await tour.save({ validateModifiedOnly: true });
+
+	res.status(200).json({
+		status: 'success',
+		data: {
+			tour: {
+				_id: tour._id,
+				name: tour.name,
+				maxGroupSize: tour.maxGroupSize
+			}
+		}
+	});
+});
+
+// Assign guide to tour (lead-guide and admin only)
+export const assignGuideToTour = catchAsync(async (req, res, next) => {
+	const { id } = req.params;
+	const { email } = req.body;
+
+	if (!email) {
+		return next(new AppError('Please provide guide email', 400));
+	}
+
+	// Find tour and check if user is lead-guide for this tour or admin
+	const tour = await Tour.findById(id).populate('guides');
+	if (!tour) {
+		return next(new AppError('No tour found with that ID', 404));
+	}
+
+	// Check authorization - must be lead-guide of this tour or admin
+	const isLeadGuide = tour.guides.length > 0 && tour.guides[0]._id.toString() === req.user.id;
+	if (!isLeadGuide && req.user.role !== 'admin') {
+		return next(new AppError('Only the lead guide of this tour or admin can assign guides', 403));
+	}
+
+	// Find user by email and validate role
+	const user = await User.findOne({ email });
+	if (!user) {
+		return next(new AppError(`No user found with email ${email}`, 404));
+	}
+	if (!['guide', 'lead-guide'].includes(user.role)) {
+		return next(new AppError('User must be a guide or lead-guide', 400));
+	}
+
+	// Check if user is already assigned
+	const isAlreadyAssigned = tour.guides.some(guide => guide._id.toString() === user._id.toString());
+	if (isAlreadyAssigned) {
+		return next(new AppError('Guide is already assigned to this tour', 400));
+	}
+
+	// Add guide to tour
+	tour.guides.push(user._id);
+	await tour.save({ validateModifiedOnly: true });
+
+	// Populate and return updated tour
+	const updatedTour = await Tour.findById(tour._id).populate({
+		path: 'guides',
+		select: 'name email photo role'
+	});
+
+	res.status(200).json({
+		status: 'success',
+		data: {
+			tour: updatedTour
+		}
+	});
+});
+
+// Unassign guide from tour (lead-guide and admin only)
+export const unassignGuideFromTour = catchAsync(async (req, res, next) => {
+	const { id, guideId } = req.params;
+
+	// Find tour and check if user is lead-guide for this tour or admin
+	const tour = await Tour.findById(id).populate('guides');
+	if (!tour) {
+		return next(new AppError('No tour found with that ID', 404));
+	}
+
+	// Check authorization - must be lead-guide of this tour or admin
+	const isLeadGuide = tour.guides.length > 0 && tour.guides[0]._id.toString() === req.user.id;
+	if (!isLeadGuide && req.user.role !== 'admin') {
+		return next(new AppError('Only the lead guide of this tour or admin can unassign guides', 403));
+	}
+
+	// Prevent removing the lead guide (first guide)
+	if (tour.guides.length > 0 && tour.guides[0]._id.toString() === guideId) {
+		return next(new AppError('Cannot remove the lead guide from the tour', 400));
+	}
+
+	// Check if guide is assigned to this tour
+	const guideIndex = tour.guides.findIndex(guide => guide._id.toString() === guideId);
+	if (guideIndex === -1) {
+		return next(new AppError('Guide is not assigned to this tour', 404));
+	}
+
+	// Remove guide from tour
+	tour.guides.splice(guideIndex, 1);
+	await tour.save({ validateModifiedOnly: true });
+
+	// Populate and return updated tour
+	const updatedTour = await Tour.findById(tour._id).populate({
+		path: 'guides',
+		select: 'name email photo role'
+	});
+
+	res.status(200).json({
+		status: 'success',
+		data: {
+			tour: updatedTour
+		}
+	});
+});

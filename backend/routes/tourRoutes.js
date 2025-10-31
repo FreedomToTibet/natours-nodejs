@@ -70,6 +70,30 @@ router
     tourController.deleteTour
   );
 
+// Lead-guide and admin: manage tour capacity
+router.patch(
+  '/:id/capacity',
+  authController.protect,
+  authController.restrictTo('lead-guide', 'admin'),
+  tourController.updateTourCapacity
+);
+
+// Lead-guide and admin: assign guide to tour
+router.post(
+  '/:id/assign-guide',
+  authController.protect,
+  authController.restrictTo('lead-guide', 'admin'),
+  tourController.assignGuideToTour
+);
+
+// Lead-guide and admin: unassign guide from tour
+router.delete(
+  '/:id/guides/:guideId',
+  authController.protect,
+  authController.restrictTo('lead-guide', 'admin'),
+  tourController.unassignGuideFromTour
+);
+
 // Admin-only: reassign lead guide of a tour by email
 router.post(
   '/:id/reassign-lead-guide',

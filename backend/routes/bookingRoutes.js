@@ -37,7 +37,7 @@ router
 	.patch(bookingController.updateUserBooking)
 	.delete(bookingController.deleteUserBooking);
 
-router.use(authController.restrictTo("admin", "lead-guide"));
+router.use(authController.restrictTo("admin"));
 
 router
 	.route("/")
