@@ -33,6 +33,19 @@ export const reviewService = {
     return data.data.reviews;
   },
 
+  // Get all reviews (for guides, lead-guides, and admins)
+  getAllReviews: async (): Promise<UserReview[]> => {
+    try {
+      console.log('Fetching all reviews...');
+      const { data } = await api.get('/reviews');
+      console.log('Reviews API response:', data);
+      return data.data.data;
+    } catch (error) {
+      console.error('Error fetching all reviews:', error);
+      throw error;
+    }
+  },
+
   // Create a review for a specific tour
   createReview: async (tourId: string, reviewData: CreateReviewData): Promise<UserReview> => {
     const { data } = await api.post(`/reviews/tour/${tourId}`, reviewData);

@@ -1,4 +1,5 @@
 export { default as Account } from './Account/Account';
+export { default as AllReviews } from './AllReviews';
 export { default as Booking } from './Booking/Booking';
 export { default as BookingManage } from './BookingManage';
 export { default as ForgotPassword } from './ForgotPassword';

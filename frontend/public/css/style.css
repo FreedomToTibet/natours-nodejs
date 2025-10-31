@@ -2750,4 +2750,343 @@ body {
 
 .btn--blue:focus {
   background-color: #2980b9;
+}/*
+ All Reviews Page Styles */
+.reviews-stats {
+  background-color: #fff;
+  border-radius: 1rem;
+  padding: 2rem;
+  margin-bottom: 3rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.reviews-stats__summary {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.reviews-stats__average {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.reviews-stats__rating {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #55c57a;
+}
+
+.reviews-stats__total {
+  font-size: 1.4rem;
+  color: #777;
+}
+
+.reviews-stats__distribution {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.reviews-stats__bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.reviews-stats__stars {
+  min-width: 4rem;
+  font-size: 1.2rem;
+}
+
+.reviews-stats__bar-container {
+  flex: 1;
+  height: 1rem;
+  background-color: #f0f0f0;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.reviews-stats__bar-fill {
+  height: 100%;
+  background-color: #55c57a;
+  transition: width 0.3s ease;
+}
+
+.reviews-stats__count {
+  min-width: 3rem;
+  font-size: 1.2rem;
+  color: #777;
+}
+
+.reviews-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  gap: 2rem;
+}
+
+.reviews-controls__filters,
+.reviews-controls__sort {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.reviews-controls label {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.form__input--small {
+  padding: 0.8rem 1.2rem;
+  font-size: 1.3rem;
+  min-width: 15rem;
+}
+
+.reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.review-card {
+  background-color: #fff;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+}
+
+.review-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.review-card__user {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.review-card__user-photo {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.review-card__user-info h4 {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.2rem;
+}
+
+.review-card__date {
+  font-size: 1.2rem;
+  color: #777;
+}
+
+.review-card__content {
+  margin-bottom: 2rem;
+}
+
+.review-card__text {
+  font-size: 1.5rem;
+  line-height: 1.6;
+  color: #555;
+  font-style: italic;
+}
+
+.review-card__tour {
+  border-top: 1px solid #e0e0e0;
+  padding-top: 1.5rem;
+}
+
+.review-card__tour-info {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.review-card__tour-image {
+  width: 8rem;
+  height: 6rem;
+  border-radius: 0.5rem;
+  object-fit: cover;
+}
+
+.review-card__tour-details h5 {
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.review-card__tour-details h5 a {
+  color: #55c57a;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.review-card__tour-details h5 a:hover {
+  color: #2e864b;
+}
+
+.review-card__tour-meta {
+  display: flex;
+  gap: 1rem;
+  font-size: 1.3rem;
+  color: #777;
+}
+
+.review-card__tour-meta span {
+  padding: 0.2rem 0.8rem;
+  background-color: #f0f0f0;
+  border-radius: 1rem;
+}
+
+.reviews-empty {
+  text-align: center;
+  padding: 4rem 2rem;
+  background-color: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.reviews-empty p {
+  font-size: 1.6rem;
+  color: #777;
+  margin-bottom: 2rem;
+}
+
+.reviews-summary {
+  text-align: center;
+  margin-top: 3rem;
+  padding: 2rem;
+  background-color: #f9f9f9;
+  border-radius: 1rem;
+}
+
+.reviews-summary p {
+  font-size: 1.4rem;
+  color: #777;
+}
+
+/* Responsive design for reviews */
+@media only screen and (max-width: 56.25em) {
+  .reviews-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .reviews-controls__filters,
+  .reviews-controls__sort {
+    justify-content: space-between;
+  }
+  
+  .review-card__header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .review-card__tour-info {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .reviews-stats__average {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}/* Enhan
+ced dropdown styles with hover effects */
+.form__input--small {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.form__input--small:hover {
+  border-color: #55c57a;
+  box-shadow: 0 0 0 2px rgba(85, 197, 122, 0.1);
+  transform: translateY(-1px);
+}
+
+.form__input--small:focus {
+  outline: none;
+  border-color: #55c57a;
+  box-shadow: 0 0 0 3px rgba(85, 197, 122, 0.2);
+}
+
+/* Dropdown arrow styling */
+.form__input--small {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1.2rem;
+  padding-right: 3rem;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+/* Hover effect for dropdown arrow */
+.form__input--small:hover {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2355c57a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+}
+
+/* Enhanced button hover effects */
+.reviews-empty .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 1rem 2rem rgba(85, 197, 122, 0.2);
+}
+
+/* Test button hover effect */
+.btn--small:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Labels hover effect */
+.reviews-controls label {
+  cursor: default;
+  transition: color 0.2s ease;
+}
+
+.reviews-controls label:hover {
+  color: #55c57a;
+}
+
+/* Enhanced select option styling */
+.form__input--small option {
+  padding: 0.8rem;
+  background-color: #fff;
+  color: #333;
+}
+
+.form__input--small option:hover {
+  background-color: #f0f9f0;
+  color: #55c57a;
+}
+
+/* Responsive hover effects */
+@media (hover: hover) {
+  .form__input--small:hover {
+    border-color: #55c57a;
+    box-shadow: 0 0 0 2px rgba(85, 197, 122, 0.1);
+  }
+}
+
+/* Disable hover effects on touch devices */
+@media (hover: none) {
+  .form__input--small:hover {
+    border-color: initial;
+    box-shadow: none;
+    transform: none;
+  }
 }

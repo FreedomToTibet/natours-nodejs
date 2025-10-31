@@ -55,6 +55,7 @@ const Account = () => {
     { id: 'settings', label: 'Settings', icon: 'settings' },
     { id: 'guide-tours', label: 'Guide Schedule', icon: 'map' },
     { id: 'guide-info', label: 'Guide Information', icon: 'user' },
+    { id: 'all-reviews', label: 'All Reviews', icon: 'star' },
   ];
 
   // Additional navigation items for admin users
@@ -491,6 +492,8 @@ const Account = () => {
         return renderGuideToursTab();
       case 'guide-info':
         return renderGuideInfoTab();
+      case 'all-reviews':
+        return renderAllReviewsTab();
       case 'manage-tours':
         return user.role === 'admin' ? <ManageToursTab /> : renderSettingsTab();
       case 'manage-users':
@@ -708,6 +711,27 @@ const Account = () => {
         </div>
 
       </div>
+    </div>
+  );
+
+  const renderAllReviewsTab = () => (
+    <div className="user-view__form-container">
+      <h2 className="heading-secondary ma-bt-md">All Reviews</h2>
+      <p style={{ fontSize: '1.6rem', color: '#777', marginBottom: '2rem' }}>
+        Browse and monitor all customer reviews across all tours.
+      </p>
+      <div style={{ textAlign: 'center', padding: '3rem' }}>
+        <a 
+          href="/all-reviews" 
+          className="btn btn--green"
+          style={{ textDecoration: 'none' }}
+        >
+          View All Reviews
+        </a>
+      </div>
+      <p style={{ fontSize: '1.4rem', color: '#999', textAlign: 'center' }}>
+        Click above to see detailed reviews from all customers with filtering and sorting options.
+      </p>
     </div>
   );
 

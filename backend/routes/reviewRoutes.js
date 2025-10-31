@@ -8,9 +8,31 @@ router.use(authController.protect);
 // Get all reviews by current user
 router.get('/my-reviews', reviewController.getUserReviews);
 
+// Test endpoint to check if reviews exist (temporary)
+router.get('/test-count', async (req, res) => {
+  try {
+    const Review = (await import('../models/reviewModel.js')).default;
+    const count = await Review.countDocuments();
+    const reviews = await Review.find().limit(5);
+    res.json({ 
+      status: 'success', 
+      count, 
+      sampleReviews: reviews 
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      status: 'error', 
+      message: error.message 
+    });
+  }
+});
+
 router
   .route('/')
-  .get(reviewController.getAllReviews)
+  .get(
+    authController.restrictTo('user', 'guide', 'lead-guide', 'admin'),
+    reviewController.getAllReviews
+  )
   .post(
     authController.restrictTo('user'),
     reviewController.setTourUserIds,

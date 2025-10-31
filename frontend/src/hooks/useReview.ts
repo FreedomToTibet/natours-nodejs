@@ -9,6 +9,21 @@ export const useUserReviews = () => {
   });
 };
 
+// Get all reviews hook (for guides, lead-guides, and admins)
+export const useAllReviews = () => {
+  return useQuery({
+    queryKey: ['allReviews'],
+    queryFn: reviewService.getAllReviews,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    onSuccess: (data) => {
+      console.log('useAllReviews success:', data);
+    },
+    onError: (error) => {
+      console.error('useAllReviews error:', error);
+    },
+  });
+};
+
 // Create review hook
 export const useCreateReview = () => {
   const queryClient = useQueryClient();
