@@ -15,22 +15,22 @@ function Header() {
         <Link to="/" className="nav__el">
           All tours
         </Link>
-        {user && (user.role === 'guide' || user.role === 'lead-guide') && (
+        {user && (user.role === 'guide' || user.role === 'lead-guide' || user.role === 'admin') && (
           <Link to="/my-guide-tours" className="nav__el">
             My Guide Tours
           </Link>
         )}
-				{user && (user.role === 'guide' || user.role === 'lead-guide') && (
+				{user && (user.role === 'guide' || user.role === 'lead-guide' || user.role === 'admin') && (
           <Link to="/all-reviews" className="nav__el">
             All Reviews
           </Link>
         )}
-				{user && (user.role === 'guide' || user.role === 'lead-guide') && (
+				{user && (user.role === 'guide' || user.role === 'lead-guide' || user.role === 'admin') && (
           <Link to="/manage-availability" className="nav__el">
             Availability
           </Link>
         )}
-        {user && user.role === 'lead-guide' && (
+        {user && (user.role === 'lead-guide' || user.role === 'admin') && (
           <Link to="/tours/create" className="nav__el">
             Create Tour
           </Link>

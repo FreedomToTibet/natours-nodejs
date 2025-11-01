@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useMyGuideTours, useTourParticipants, useCurrentUser, useDeleteTour, useCheckInParticipant, useCheckOutParticipant, useUpdateTourCapacity, useAssignGuideToTour, useUnassignGuideFromTour } from '../hooks';
+import { useMyGuideTours, useTours, useTourParticipants, useCurrentUser, useDeleteTour, useCheckInParticipant, useCheckOutParticipant, useUpdateTourCapacity, useAssignGuideToTour, useUnassignGuideFromTour } from '../hooks';
+import type { Tour } from '../services/tourService';
+import type { GuideTour } from '../services/guideService';
 import { LoadingSpinner } from '../components';
 import { formatPrice } from '../utils';
 
@@ -10,9 +12,18 @@ function MyGuideTours() {
   const [newCapacity, setNewCapacity] = useState<number>(0);
   const [guideEmail, setGuideEmail] = useState<string>('');
   
-  const { data: guideTours, isLoading: toursLoading, error: toursError } = useMyGuideTours();
-  const { data: participants, isLoading: participantsLoading } = useTourParticipants(selectedTourId);
   const { data: currentUser } = useCurrentUser();
+  
+  // Admin gets ALL tours, guides get only their assigned tours
+  const { data: guideTours, isLoading: guideToursLoading, error: guideToursError } = useMyGuideTours();
+  const { data: allTours, isLoading: allToursLoading, error: allToursError } = useTours();
+  
+  const isAdmin = currentUser?.role === 'admin';
+  const toursData = isAdmin ? allTours : guideTours;
+  const toursLoading = isAdmin ? allToursLoading : guideToursLoading;
+  const toursError = isAdmin ? allToursError : guideToursError;
+  
+  const { data: participants, isLoading: participantsLoading } = useTourParticipants(selectedTourId);
   
   const deleteTourMutation = useDeleteTour();
   const checkInMutation = useCheckInParticipant();
@@ -61,6 +72,10 @@ function MyGuideTours() {
   };
 
   const isLeadGuide = (tour: any) => {
+    // Admin has management access to ALL tours
+    if (currentUser?.role === 'admin') return true;
+    
+    // Lead guide only manages tours where they are the first assigned guide
     return currentUser?.role === 'lead-guide' && 
            tour.guides && 
            tour.guides.length > 0 && 
@@ -84,7 +99,10 @@ function MyGuideTours() {
     );
   }
 
-  const tours = guideTours?.data?.tours || [];
+  // Normalize data structure: useTours returns Tour[], useMyGuideTours returns nested object
+    const tours: (Tour | GuideTour)[] = isAdmin 
+      ? ((toursData as Tour[]) || [])  // allTours is Tour[] 
+      : ((toursData as { data: { tours: GuideTour[] } })?.data?.tours || []);  // guideTours is { data: { tours: [] } }
 
   if (tours.length === 0) {
     return (
@@ -92,8 +110,15 @@ function MyGuideTours() {
         <div className="user-view">
           <div className="user-view__content">
             <div className="user-view__form-container">
-              <h2 className="heading-secondary ma-bt-md">My Guide Tours</h2>
-              <p>You are not currently assigned to guide any tours.</p>
+              <h2 className="heading-secondary ma-bt-md">
+                {isAdmin ? 'All Tours (Admin)' : 'My Guide Tours'}
+              </h2>
+              <p>
+                {isAdmin 
+                  ? 'No tours have been created yet.'
+                  : 'You are not currently assigned to guide any tours.'
+                }
+              </p>
             </div>
           </div>
         </div>
@@ -108,12 +133,17 @@ function MyGuideTours() {
           <div className="user-view__form-container">
             <div className="guide-tours-header">
               <div>
-                <h2 className="heading-secondary ma-bt-md">My Guide Tours</h2>
+                <h2 className="heading-secondary ma-bt-md">
+                  {isAdmin ? 'All Tours (Admin)' : 'My Guide Tours'}
+                </h2>
                 <p className="user-view__subtitle">
-                  Tours you are assigned to guide ({tours.length} tour{tours.length !== 1 ? 's' : ''})
+                  {isAdmin 
+                    ? `Manage all tours on the platform (${tours.length} tour${tours.length !== 1 ? 's' : ''})`
+                    : `Tours you are assigned to guide (${tours.length} tour${tours.length !== 1 ? 's' : ''})`
+                  }
                 </p>
               </div>
-              {currentUser?.role === 'lead-guide' && (
+              {(currentUser?.role === 'lead-guide' || currentUser?.role === 'admin') && (
                 <div className="guide-tours-actions">
                   <Link to="/tours/create" className="btn btn--green">
                     <svg className="btn__icon">

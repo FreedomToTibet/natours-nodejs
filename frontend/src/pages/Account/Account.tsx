@@ -69,7 +69,7 @@ const Account = () => {
 
   // Get navigation items based on user role
   const getNavItems = () => {
-    if (user?.role === 'guide' || user?.role === 'lead-guide') {
+    if (user?.role === 'guide' || user?.role === 'lead-guide' || user?.role === 'admin') {
       return guideNavItems;
     }
     return userNavItems;

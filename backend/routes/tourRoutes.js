@@ -38,7 +38,14 @@ router
 
 router.route('/distances/:latlng/unit/:unit').get(tourController.getDistances);
 
-router.route('/update-dates/:year').put(tourController.updateAllTourDates);
+// Admin or lead-guide only: bulk update tour dates for a given year
+router
+  .route('/update-dates/:year')
+  .put(
+    authController.protect,
+    authController.restrictTo('admin', 'lead-guide'),
+    tourController.updateAllTourDates
+  );
 
 router
   .route('/')
