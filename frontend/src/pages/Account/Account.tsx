@@ -199,7 +199,7 @@ const Account = () => {
                     onChange={(e) => { setEmail(e.target.value); if (reassignError) setReassignError(''); }}
                     style={{ minWidth: '20rem', flex: 1, maxWidth: '46rem', height: '4rem', fontSize: '1.4rem' }}
                   />
-                  <button className="btn btn--small btn--blue" style={{ minWidth: '10.5rem', whiteSpace: 'nowrap' }} disabled={savingId === t._id} onClick={async () => {
+                  <button className="btn btn--small btn--blue btn--allow-wrap" style={{ minWidth: '10.5rem' }} disabled={savingId === t._id} onClick={async () => {
                     if (activeTour !== t._id) setActiveTour(t._id);
                     const value = email.trim();
                     if (!value) {

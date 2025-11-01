@@ -128,7 +128,7 @@ function AdminDashboard() {
 												style={{ maxWidth: '26rem' }}
 											/>
 											<button
-												className="btn btn--small btn--blue"
+												className="btn btn--small btn--blue btn--allow-wrap"
 												disabled={reassigningTourId === t._id}
 												onClick={() => reassignLead(t._id)}
 											>

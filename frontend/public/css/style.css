@@ -988,8 +988,11 @@ body {
 /* Inputs and buttons inside table actions align visually */
 .table__row .form__input {
   max-width: 26rem;
-  padding: 0.8rem 1rem;
-  font-size: 1.3rem;
+}
+
+/* Utility class to force text wrapping */
+.btn--allow-wrap {
+  white-space: normal !important;
 }
 
 .table__row .btn.btn--small {
