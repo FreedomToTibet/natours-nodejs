@@ -3610,4 +3610,26 @@ min user management styles */
 
 .table__row .user-actions {
   min-width: 160px;
+}/* Fix 
+table column alignment for user management */
+.user-view__form-container .table {
+  width: 100%;
+}
+
+.user-view__form-container .table__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 150px 160px;
+  gap: 1rem;
+  align-items: center;
+}
+
+.user-view__form-container .table__row > div {
+  overflow: visible;
+  text-overflow: initial;
+  white-space: normal;
+}
+
+.user-view__form-container .table__row > div:nth-child(3) select {
+  width: 100%;
+  max-width: 130px;
 }
