@@ -3089,8 +3089,8 @@ ced dropdown styles with hover effects */
     box-shadow: none;
     transform: none;
   }
-}/
-* Guide Availability Styles */
+}
+/* Guide Availability Styles */
 .availability-status {
   background-color: #fff;
   border-radius: 1rem;
@@ -3299,8 +3299,8 @@ ced dropdown styles with hover effects */
     gap: 1rem;
     text-align: center;
   }
-}/
-* Guide Tours Header Styles */
+}
+/* Guide Tours Header Styles */
 .guide-tours-header {
   display: flex;
   justify-content: space-between;
