@@ -3632,4 +3632,115 @@ table column alignment for user management */
 .user-view__form-container .table__row > div:nth-child(3) select {
   width: 100%;
   max-width: 130px;
+}/* 
+Mapbox fallback styles */
+.map-fallback {
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  padding: 2rem;
+  margin: 2rem 0;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+.map-fallback__header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.map-fallback__header h3 {
+  color: #333;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.map-fallback__header p {
+  color: #666;
+  font-size: 1.4rem;
+}
+
+.map-fallback__locations {
+  flex: 1;
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.location-item {
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.location-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.location-item__day {
+  font-weight: 700;
+  color: #55c57a;
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.location-item__description {
+  color: #333;
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.location-item__coords {
+  color: #666;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  font-family: monospace;
+}
+
+.location-item__link {
+  display: inline-block;
+  color: #55c57a;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.2rem;
+  transition: color 0.2s ease;
+}
+
+.location-item__link:hover {
+  color: #4a9d63;
+  text-decoration: underline;
+}
+
+.map-fallback__footer {
+  text-align: center;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.map-fallback__footer p {
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .map-fallback {
+    padding: 1.5rem;
+    margin: 1rem 0;
+  }
+  
+  .map-fallback__locations {
+    grid-template-columns: 1fr;
+  }
+  
+  .location-item {
+    padding: 1rem;
+  }
 }

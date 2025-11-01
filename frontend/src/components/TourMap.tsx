@@ -2,9 +2,15 @@ import { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import type { Tour } from '../services';
 
-// You'll need to get your own Mapbox access token from https://mapbox.com
-// For now, I'm using a placeholder - replace with your actual token
-const MAPBOX_TOKEN = 'pk.eyJ1Ijoiam9uYXNzY2htZWR0bWFubiIsImEiOiJjam54ZmM5N3gwNjAzM3dtZDNxYTVlMnd2In0.ytpI7V7w7cyT1Kq5rT9Z1A';
+// Mapbox access token from environment variables
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
+
+// Fallback map styles to try if the primary one fails
+const MAP_STYLES = [
+  'mapbox://styles/mapbox/outdoors-v12',
+  'mapbox://styles/mapbox/streets-v12',
+  'mapbox://styles/mapbox/satellite-streets-v12'
+];
 
 interface TourMapProps {
   tour: Tour;
@@ -14,23 +20,108 @@ const TourMap = ({ tour }: TourMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
 
+  const showFallbackContent = () => {
+    if (!mapContainer.current) return;
+    
+    const locations = tour.locations || [];
+    mapContainer.current.innerHTML = `
+      <div class="map-fallback">
+        <div class="map-fallback__header">
+          <h3>🗺️ Tour Locations</h3>
+          <p>Interactive map is temporarily unavailable. Here are the tour locations:</p>
+        </div>
+        <div class="map-fallback__locations">
+          ${locations.map(loc => `
+            <div class="location-item">
+              <div class="location-item__day">Day ${loc.day}</div>
+              <div class="location-item__description">${loc.description}</div>
+              <div class="location-item__coords">📍 ${loc.coordinates[1].toFixed(4)}, ${loc.coordinates[0].toFixed(4)}</div>
+              <a href="https://www.google.com/maps?q=${loc.coordinates[1]},${loc.coordinates[0]}" 
+                 target="_blank" 
+                 rel="noopener noreferrer"
+                 class="location-item__link">
+                View on Google Maps →
+              </a>
+            </div>
+          `).join('')}
+        </div>
+        <div class="map-fallback__footer">
+          <p><small>💡 To enable the interactive map, please set up a Mapbox token following the instructions in MAPBOX_SETUP.md</small></p>
+        </div>
+      </div>
+    `;
+  };
+
   useEffect(() => {
     if (!mapContainer.current) return;
 
+    // Check if we have a valid Mapbox token
+    if (!MAPBOX_TOKEN || MAPBOX_TOKEN === 'fallback_token') {
+      console.warn('No valid Mapbox token found. Showing fallback content.');
+      showFallbackContent();
+      return;
+    }
+
     // Set Mapbox access token
     mapboxgl.accessToken = MAPBOX_TOKEN;
+    
+    // Suppress terrain warnings in development/private browsing
+    if (typeof window !== 'undefined') {
+      // This reduces console noise from terrain/hillshade warnings
+      const originalWarn = console.warn;
+      console.warn = (...args) => {
+        if (args[0]?.includes?.('Terrain and hillshade are disabled')) return;
+        originalWarn.apply(console, args);
+      };
+    }
 
-    // Initialize map with enhanced controls
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/jonasschmedtmann/cjvi9q8jd04mi1cpgmg7ev3dy',
-      scrollZoom: true, // Enable scroll zoom
-      interactive: true,
-      doubleClickZoom: true, // Enable double-click to zoom
-      touchZoomRotate: true, // Enable touch zoom and rotate
-      dragRotate: false, // Disable rotation for cleaner UX
-      pitchWithRotate: false
-    });
+    // Initialize map with enhanced controls and error handling
+    let mapInitialized = false;
+    
+    for (const style of MAP_STYLES) {
+      try {
+        map.current = new mapboxgl.Map({
+          container: mapContainer.current,
+          style: style,
+          scrollZoom: true,
+          interactive: true,
+          doubleClickZoom: true,
+          touchZoomRotate: true,
+          dragRotate: false,
+          pitchWithRotate: false,
+          // Disable telemetry to reduce console noise
+          trackResize: true,
+          preserveDrawingBuffer: false,
+          antialias: true
+        });
+
+        // Add error handler for map loading
+        map.current.on('error', (e) => {
+          console.error('Mapbox map error:', e);
+          if (!mapInitialized) {
+            showFallbackContent();
+          }
+        });
+
+        // Add load handler to confirm successful initialization
+        map.current.on('load', () => {
+          mapInitialized = true;
+          console.log('Mapbox map loaded successfully');
+        });
+
+        break; // If we get here, map was created successfully
+      } catch (error) {
+        console.error(`Failed to initialize map with style ${style}:`, error);
+        continue; // Try next style
+      }
+    }
+
+    // If no map style worked, show fallback
+    if (!map.current) {
+      console.error('All map styles failed. Showing fallback content.');
+      showFallbackContent();
+      return;
+    }
 
     // Add navigation controls (zoom in/out buttons)
     map.current.addControl(new mapboxgl.NavigationControl({
