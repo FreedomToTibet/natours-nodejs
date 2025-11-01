@@ -17,8 +17,19 @@ export const adminService = {
 		const res = await api.get('/users');
 		return res.data?.data?.data || res.data?.data?.users || [];
 	},
+	async createUser(userData: { name: string; email: string; password: string; passwordConfirm: string; role: User['role'] }): Promise<User> {
+		const res = await api.post('/users', userData);
+		return res.data?.data?.user;
+	},
 	async updateUserRole(userId: string, role: User['role']): Promise<void> {
 		await api.patch(`/users/${userId}`, { role });
+	},
+	async updateUser(userId: string, userData: Partial<User>): Promise<User> {
+		const res = await api.patch(`/users/${userId}`, userData);
+		return res.data?.data?.data;
+	},
+	async deleteUser(userId: string): Promise<void> {
+		await api.delete(`/users/${userId}`);
 	},
 
 	// Tours

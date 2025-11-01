@@ -245,28 +245,156 @@ const Account = () => {
     const [loading, setLoading] = useState(true);
     const [savingId, setSavingId] = useState<string>('');
     const [lastAdminId, setLastAdminId] = useState<string | null>(null);
+    const [showCreateForm, setShowCreateForm] = useState(false);
+    const [newUser, setNewUser] = useState({
+      name: '',
+      email: '',
+      password: '',
+      passwordConfirm: '',
+      role: 'user' as any
+    });
+    const [creating, setCreating] = useState(false);
+
+    const loadUsers = async () => {
+      try {
+        setLoading(true);
+        const data = await adminService.getUsers();
+        setUsers(data);
+        const activeAdmins = (data || []).filter((u: any) => u.role === 'admin' && u.active !== false);
+        setLastAdminId(activeAdmins.length === 1 ? activeAdmins[0]._id : null);
+      } finally {
+        setLoading(false);
+      }
+    };
 
     useEffect(() => {
-      let mounted = true;
-      (async () => {
-        try {
-          setLoading(true);
-          const data = await adminService.getUsers();
-          if (mounted) {
-            setUsers(data);
-            const activeAdmins = (data || []).filter((u: any) => u.role === 'admin' && u.active !== false);
-            setLastAdminId(activeAdmins.length === 1 ? activeAdmins[0]._id : null);
-          }
-        } finally {
-          if (mounted) setLoading(false);
-        }
-      })();
-      return () => { mounted = false; };
+      loadUsers();
     }, []);
+
+    const handleCreateUser = async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (newUser.password !== newUser.passwordConfirm) {
+        toast.error('Passwords do not match');
+        return;
+      }
+      
+      try {
+        setCreating(true);
+        await adminService.createUser(newUser);
+        toast.success('User created successfully');
+        setNewUser({ name: '', email: '', password: '', passwordConfirm: '', role: 'user' });
+        setShowCreateForm(false);
+        await loadUsers();
+      } catch (err: any) {
+        const msg = err?.response?.data?.message || 'Failed to create user';
+        toast.error(msg);
+      } finally {
+        setCreating(false);
+      }
+    };
+
+    const handleDeleteUser = async (userId: string, userName: string) => {
+      if (!window.confirm(`Are you sure you want to delete user "${userName}"? This action cannot be undone.`)) {
+        return;
+      }
+      
+      try {
+        await adminService.deleteUser(userId);
+        toast.success('User deleted successfully');
+        await loadUsers();
+      } catch (err: any) {
+        const msg = err?.response?.data?.message || 'Failed to delete user';
+        toast.error(msg);
+      }
+    };
 
     return (
       <div className="user-view__form-container">
-        <h2 className="heading-secondary ma-bt-md">Manage users</h2>
+        <div className="manage-users-header">
+          <h2 className="heading-secondary">Manage users</h2>
+          <button 
+            className="btn btn--green btn--small"
+            onClick={() => setShowCreateForm(!showCreateForm)}
+          >
+            {showCreateForm ? 'Cancel' : 'Create New User'}
+          </button>
+        </div>
+
+        {showCreateForm && (
+          <form className="form form--create-user ma-bt-md" onSubmit={handleCreateUser}>
+            <h3 className="heading-tertiary ma-bt-sm">Create New User</h3>
+            <div className="form__group">
+              <label className="form__label" htmlFor="name">Name</label>
+              <input
+                className="form__input"
+                id="name"
+                type="text"
+                value={newUser.name}
+                onChange={(e) => setNewUser(prev => ({ ...prev, name: e.target.value }))}
+                required
+              />
+            </div>
+            <div className="form__group">
+              <label className="form__label" htmlFor="email">Email</label>
+              <input
+                className="form__input"
+                id="email"
+                type="email"
+                value={newUser.email}
+                onChange={(e) => setNewUser(prev => ({ ...prev, email: e.target.value }))}
+                required
+              />
+            </div>
+            <div className="form__group">
+              <label className="form__label" htmlFor="password">Password</label>
+              <input
+                className="form__input"
+                id="password"
+                type="password"
+                value={newUser.password}
+                onChange={(e) => setNewUser(prev => ({ ...prev, password: e.target.value }))}
+                minLength={8}
+                required
+              />
+            </div>
+            <div className="form__group">
+              <label className="form__label" htmlFor="passwordConfirm">Confirm Password</label>
+              <input
+                className="form__input"
+                id="passwordConfirm"
+                type="password"
+                value={newUser.passwordConfirm}
+                onChange={(e) => setNewUser(prev => ({ ...prev, passwordConfirm: e.target.value }))}
+                minLength={8}
+                required
+              />
+            </div>
+            <div className="form__group">
+              <label className="form__label" htmlFor="role">Role</label>
+              <select
+                className="form__input"
+                id="role"
+                value={newUser.role}
+                onChange={(e) => setNewUser(prev => ({ ...prev, role: e.target.value as any }))}
+              >
+                <option value="user">User</option>
+                <option value="guide">Guide</option>
+                <option value="lead-guide">Lead Guide</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            <div className="form__group">
+              <button 
+                className="btn btn--green" 
+                type="submit"
+                disabled={creating}
+              >
+                {creating ? 'Creating...' : 'Create User'}
+              </button>
+            </div>
+          </form>
+        )}
+
         {loading ? (
           <LoadingSpinner />
         ) : (
@@ -299,7 +427,7 @@ const Account = () => {
                     );
                   })()}
                 </div>
-                <div>
+                <div className="user-actions">
                   <button
                     className="btn btn--small btn--green"
                     disabled={savingId === u._id}
@@ -317,6 +445,14 @@ const Account = () => {
                     }}
                   >
                     {savingId === u._id ? 'Saving...' : 'Save'}
+                  </button>
+                  <button
+                    className="btn btn--small btn--red"
+                    disabled={lastAdminId === u._id && u.role === 'admin'}
+                    title={lastAdminId === u._id && u.role === 'admin' ? 'Cannot delete the last remaining admin' : 'Delete user'}
+                    onClick={() => handleDeleteUser(u._id, u.name)}
+                  >
+                    Delete
                   </button>
                 </div>
               </div>

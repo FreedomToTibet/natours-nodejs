@@ -806,9 +806,9 @@ body {
   padding: 7rem 0;
 }
 .user-view__form-container {
-  max-width: 68rem;
+  max-width: 76rem;
   margin: 0 auto;
-  padding: 0 8rem;
+  padding: 0 2rem;
 }
 
 .footer {
@@ -962,7 +962,7 @@ body {
 .table__row {
   display: grid;
   grid-auto-flow: column;
-  grid-template-columns: 1.8fr 1.8fr 3.5fr; /* more space for actions column */
+  grid-template-columns: 1.8fr 1.8fr 1.2fr; /* more space for actions column */
   gap: 1.2rem;
   align-items: center;
   padding: 1.2rem 1.6rem;
@@ -3504,4 +3504,110 @@ anagement Panel Styles */
   .guide-input-group .form__input--small {
     min-width: auto;
   }
+}
+
+.manage-users-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+	padding-top: 0.5rem;
+	padding-bottom: 0.5rem;
+}/* Ad
+min user management styles */
+.manage-users-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.form--create-user {
+  background: #f7f7f7;
+  padding: 2rem;
+  border-radius: 3px;
+  border: 1px solid #e0e0e0;
+  margin-bottom: 2rem;
+}
+
+.form--create-user .heading-tertiary {
+  color: #333;
+  margin-bottom: 1.5rem;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.form--create-user .form__group {
+  margin-bottom: 1.5rem;
+}
+
+.form--create-user .form__label {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.form--create-user .form__input {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  font-size: 1.5rem;
+  font-family: inherit;
+  color: inherit;
+  border: none;
+  background-color: #fff;
+  border-top: 3px solid transparent;
+  border-bottom: 3px solid transparent;
+  border-radius: 4px;
+  transition: all 0.3s;
+}
+
+.form--create-user .form__input:focus {
+  outline: none;
+  border-bottom: 3px solid #55c57a;
+}
+
+.form--create-user .form__input:focus:invalid {
+  border-bottom: 3px solid #ff7730;
+}
+
+.user-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.user-actions .btn.btn--small {
+  min-width: 70px !important;
+  padding: 0.8rem 1.2rem !important;
+  font-size: 1.2rem !important;
+  width: auto !important;
+  box-sizing: border-box !important;
+}
+
+.user-actions .btn.btn--small.btn--green,
+.user-actions .btn.btn--small.btn--red {
+  min-width: 70px !important;
+  padding: 0.8rem 1.2rem !important;
+  font-size: 1.2rem !important;
+  width: auto !important;
+  box-sizing: border-box !important;
+}
+
+.btn--red {
+  background-color: #e74c3c;
+  color: #fff;
+}
+
+.btn--red:hover {
+  background-color: #c0392b;
+}
+
+.btn--red:disabled {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+}
+
+.table__row .user-actions {
+  min-width: 160px;
 }

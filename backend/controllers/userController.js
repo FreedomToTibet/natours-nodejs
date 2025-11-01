@@ -154,12 +154,27 @@ const filterObj = (obj, ...allowedFields) => {
 	return newObj;
 };
 
-export const createUser = (res, req) => {
-	res.status(500).json({
-		status: 'error',
-		message: 'This route is not yet defined! Please use /signup instead!'
+export const createUser = catchAsync(async (req, res, next) => {
+	// Admin can create users with any role
+	const newUser = await User.create({
+		name: req.body.name,
+		email: req.body.email,
+		password: req.body.password,
+		passwordConfirm: req.body.passwordConfirm,
+		role: req.body.role || 'user',
+		photo: req.body.photo || 'default.jpg'
 	});
-};
+
+	// Remove password from output
+	newUser.password = undefined;
+
+	res.status(201).json({
+		status: 'success',
+		data: {
+			user: newUser
+		}
+	});
+});
 
 export const getMe = catchAsync(async (req, res, next) => {
   let selectFields = '';
