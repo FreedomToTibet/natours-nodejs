@@ -255,9 +255,30 @@ export const createBooking = catchAsync(async (req, res, next) => {
   });
 });
 export const getBooking = getOne(Booking);
-export const getAllBookings = getAll(Booking);
 export const updateBooking = updateOne(Booking);
 export const deleteBooking = deleteOne(Booking);
+
+// Custom getAllBookings with proper population for admin
+export const getAllBookings = catchAsync(async (req, res, next) => {
+  const bookings = await Booking.find()
+    .populate({
+      path: 'tour',
+      select: 'name slug imageCover duration difficulty price summary'
+    })
+    .populate({
+      path: 'user',
+      select: 'name email photo'
+    })
+    .sort({ createdAt: -1 }); // Sort by newest first
+
+  res.status(200).json({
+    status: 'success',
+    results: bookings.length,
+    data: {
+      bookings: bookings
+    }
+  });
+});
 
 // New controller to get bookings for the logged-in user
 export const getMyBookings = catchAsync(async (req, res, next) => {

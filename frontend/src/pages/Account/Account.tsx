@@ -544,73 +544,208 @@ const Account = () => {
   };
 
   const ManageBookingsTab: React.FC = () => {
-    const [items, setItems] = useState<any[]>([]);
+    const [bookings, setBookings] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [pendingId, setPendingId] = useState<string | null>(null);
+    const [filterStatus, setFilterStatus] = useState<'all' | 'paid' | 'unpaid'>('all');
+    const [sortBy, setSortBy] = useState<'date' | 'price' | 'tour'>('date');
+
+    const loadBookings = async () => {
+      try {
+        setLoading(true);
+        const data = await adminService.getAllBookings();
+        console.log('Loaded bookings data:', data);
+        console.log('Number of bookings:', data.length);
+        setBookings(data);
+      } catch (error) {
+        console.error('Error loading bookings:', error);
+        toast.error('Failed to load bookings. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
     useEffect(() => {
-      let mounted = true;
-      (async () => {
-        try {
-          setLoading(true);
-          const data = await adminService.getAllBookings();
-          if (mounted) setItems(data);
-        } finally {
-          if (mounted) setLoading(false);
-        }
-      })();
-      return () => { mounted = false; };
+      loadBookings();
     }, []);
+
+    const filteredAndSortedBookings = bookings
+      .filter(booking => {
+        if (filterStatus === 'paid') return booking.paid;
+        if (filterStatus === 'unpaid') return !booking.paid;
+        return true;
+      })
+      .sort((a, b) => {
+        switch (sortBy) {
+          case 'price':
+            return b.price - a.price;
+          case 'tour':
+            return (a.tour?.name || '').localeCompare(b.tour?.name || '');
+          case 'date':
+          default:
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        }
+      });
+
+    const totalBookings = bookings.length;
+    const paidBookings = bookings.filter(b => b.paid).length;
+    const unpaidBookings = totalBookings - paidBookings;
+    const totalRevenue = bookings.filter(b => b.paid).reduce((sum, b) => sum + b.price, 0);
 
     return (
       <div className="user-view__form-container">
-        <h2 className="heading-secondary ma-bt-md">Manage bookings</h2>
+        <div className="manage-bookings-header">
+          <h2 className="heading-secondary ma-bt-md">Manage bookings</h2>
+          <button 
+            className="btn btn--blue btn--small"
+            onClick={() => loadBookings()}
+          >
+            Refresh
+          </button>
+        </div>
+
+        {/* Booking Statistics */}
+        <div className="booking-stats">
+          <div className="stat-card">
+            <div className="stat-card__number">{totalBookings}</div>
+            <div className="stat-card__label">Total Bookings</div>
+          </div>
+          <div className="stat-card stat-card--success">
+            <div className="stat-card__number">{paidBookings}</div>
+            <div className="stat-card__label">Paid Bookings</div>
+          </div>
+          <div className="stat-card stat-card--warning">
+            <div className="stat-card__number">{unpaidBookings}</div>
+            <div className="stat-card__label">Unpaid Bookings</div>
+          </div>
+          <div className="stat-card stat-card--primary">
+            <div className="stat-card__number">{formatCurrency(totalRevenue)}</div>
+            <div className="stat-card__label">Total Revenue</div>
+          </div>
+        </div>
+
+        {/* Filters and Sorting */}
+        <div className="booking-controls">
+          <div className="filter-group">
+            <label htmlFor="status-filter">Filter by Status:</label>
+            <select 
+              id="status-filter"
+              value={filterStatus} 
+              onChange={(e) => setFilterStatus(e.target.value as any)}
+              className="form__input form__input--small"
+            >
+              <option value="all">All Bookings</option>
+              <option value="paid">Paid Only</option>
+              <option value="unpaid">Unpaid Only</option>
+            </select>
+          </div>
+          <div className="filter-group">
+            <label htmlFor="sort-by">Sort by:</label>
+            <select 
+              id="sort-by"
+              value={sortBy} 
+              onChange={(e) => setSortBy(e.target.value as any)}
+              className="form__input form__input--small"
+            >
+              <option value="date">Booking Date</option>
+              <option value="price">Price</option>
+              <option value="tour">Tour Name</option>
+            </select>
+          </div>
+        </div>
+
         {loading ? (
           <LoadingSpinner />
+        ) : filteredAndSortedBookings.length === 0 ? (
+          <div className="empty-state">
+            <h3>No bookings found</h3>
+            <p>
+              {bookings.length === 0 
+                ? "There are no bookings in the system yet. Bookings will appear here once customers start making reservations."
+                : "No bookings match the current filter criteria. Try adjusting the filters above."
+              }
+            </p>
+          </div>
         ) : (
-          <div className="table">
-            <div className="table__row table__row--head">
-              <div>Tour</div>
-              <div>User</div>
-              <div>Price</div>
-              <div>Paid</div>
-              <div>Actions</div>
-            </div>
-            {items.map((b) => (
-              <div key={b._id} className="table__row">
-                <div>{b.tour?.name || '—'}</div>
-                <div>{b.user?.name || '—'}</div>
-                <div>{formatCurrency(b.price)}</div>
-                <div>{b.paid ? 'Yes' : 'No'}</div>
-                <div>
-                  <button className="btn btn--small btn--red" onClick={() => { setPendingId(b._id); setConfirmOpen(true); }}>Delete</button>
+          <div className="bookings-grid">
+            {filteredAndSortedBookings.map((booking) => (
+              <div key={booking._id} className="booking-card">
+                <div className="booking-card__header">
+                  <div className="booking-card__tour">
+                    <h3 className="booking-card__tour-name">{booking.tour?.name || 'Unknown Tour'}</h3>
+                    <div className="booking-card__price">{formatCurrency(booking.price)}</div>
+                  </div>
+                  <div className={`booking-card__status ${booking.paid ? 'booking-card__status--paid' : 'booking-card__status--unpaid'}`}>
+                    {booking.paid ? '✓ Paid' : '⏳ Unpaid'}
+                  </div>
+                </div>
+
+                <div className="booking-card__details">
+                  <div className="booking-card__info">
+                    <div className="booking-card__row">
+                      <span className="booking-card__label">Customer:</span>
+                      <span className="booking-card__value">{booking.user?.name || 'Unknown User'}</span>
+                    </div>
+                    <div className="booking-card__row">
+                      <span className="booking-card__label">Email:</span>
+                      <span className="booking-card__value">{booking.user?.email || 'No email'}</span>
+                    </div>
+                    <div className="booking-card__row">
+                      <span className="booking-card__label">Booking Date:</span>
+                      <span className="booking-card__value">
+                        {new Date(booking.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <div className="booking-card__row">
+                      <span className="booking-card__label">Booking ID:</span>
+                      <span className="booking-card__value booking-card__id">{booking._id}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="booking-card__actions">
+                  <a 
+                    href={`/tour/${booking.tour?.slug}`} 
+                    className="btn btn--small btn--green"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    View Tour
+                  </a>
+                  <button
+                    className="btn btn--small btn--red"
+                    onClick={() => { setPendingId(booking._id); setConfirmOpen(true); }}
+                  >
+                    Cancel Booking
+                  </button>
                 </div>
               </div>
             ))}
-            <ConfirmModal
-              isOpen={confirmOpen}
-              title="Delete booking?"
-              message="This action cannot be undone."
-              confirmText="Delete"
-              onCancel={() => { setConfirmOpen(false); setPendingId(null); }}
-              onConfirm={async () => {
-                if (!pendingId) return;
-                try {
-                  await adminService.deleteBooking(pendingId);
-                  setItems(prev => prev.filter(p => p._id !== pendingId));
-                  toast.success('Booking deleted');
-                } catch (err: any) {
-                  const msg = err?.response?.data?.message || 'Failed to delete booking';
-                  toast.error(msg);
-                } finally {
-                  setConfirmOpen(false);
-                  setPendingId(null);
-                }
-              }}
-            />
           </div>
         )}
+
+        <ConfirmModal
+          isOpen={confirmOpen}
+          title="Cancel booking?"
+          message="This will permanently cancel the booking and cannot be undone. The customer will need to be notified separately."
+          confirmText="Cancel Booking"
+          onCancel={() => { setConfirmOpen(false); setPendingId(null); }}
+          onConfirm={async () => {
+            if (!pendingId) return;
+            try {
+              await adminService.deleteBooking(pendingId);
+              setBookings(prev => prev.filter(p => p._id !== pendingId));
+              toast.success('Booking cancelled successfully');
+            } catch (err: any) {
+              const msg = err?.response?.data?.message || 'Failed to cancel booking';
+              toast.error(msg);
+            } finally {
+              setConfirmOpen(false);
+              setPendingId(null);
+            }
+          }}
+        />
       </div>
     );
   };
