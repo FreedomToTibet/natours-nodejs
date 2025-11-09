@@ -551,6 +551,15 @@ const Account = () => {
     const [filterStatus, setFilterStatus] = useState<'all' | 'paid' | 'unpaid'>('all');
     const [sortBy, setSortBy] = useState<'date' | 'price' | 'tour'>('date');
 
+    // Admin create-booking form state
+    const [users, setUsers] = useState<any[]>([]);
+    const [tours, setTours] = useState<any[]>([]);
+    const [selectedUser, setSelectedUser] = useState<string>('');
+    const [selectedTour, setSelectedTour] = useState<string>('');
+    const [price, setPrice] = useState<number | ''>('');
+    const [paid, setPaid] = useState<boolean>(true);
+    const [creating, setCreating] = useState(false);
+
     const loadBookings = async () => {
       try {
         setLoading(true);
@@ -568,7 +577,30 @@ const Account = () => {
 
     useEffect(() => {
       loadBookings();
+      // Preload users and tours for admin create-booking
+      (async () => {
+        try {
+          const [u, t] = await Promise.all([
+            adminService.getUsers(),
+            adminService.getTours()
+          ]);
+          setUsers(u);
+          setTours(t);
+        } catch (e) {
+          console.error('Failed to load users/tours for booking creation', e);
+        }
+      })();
     }, []);
+
+    useEffect(() => {
+      if (selectedTour && tours.length) {
+        const tour = tours.find((tr) => tr._id === selectedTour);
+        if (tour && (price === '' || price === 0)) {
+          setPrice(tour.price);
+        }
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedTour]);
 
     const filteredAndSortedBookings = bookings
       .filter(booking => {
@@ -603,6 +635,104 @@ const Account = () => {
           >
             Refresh
           </button>
+        </div>
+
+        {/* Admin: Create booking on behalf of a user */}
+        <div className="card ma-bt-md">
+          <div className="card__header">
+            <h3 className="heading-tertiary">Create booking for a user</h3>
+            <p className="card__sub">Admins can reserve and optionally mark as paid</p>
+          </div>
+          <div className="card__body">
+            <div className="grid grid--2-cols grid--gap-md">
+              <div className="form__group">
+                <label className="form__label" htmlFor="cb-user">User</label>
+                <select
+                  id="cb-user"
+                  className="form__input"
+                  value={selectedUser}
+                  onChange={(e) => setSelectedUser(e.target.value)}
+                >
+                  <option value="">Select a user…</option>
+                  {users.map((u) => (
+                    <option key={u._id} value={u._id}>{u.name} ({u.email})</option>
+                  ))}
+                </select>
+              </div>
+              <div className="form__group">
+                <label className="form__label" htmlFor="cb-tour">Tour</label>
+                <select
+                  id="cb-tour"
+                  className="form__input"
+                  value={selectedTour}
+                  onChange={(e) => setSelectedTour(e.target.value)}
+                >
+                  <option value="">Select a tour…</option>
+                  {tours.map((tr) => (
+                    <option key={tr._id} value={tr._id}>{tr.name} — {formatCurrency(tr.price)}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="form__group">
+                <label className="form__label" htmlFor="cb-price">Price</label>
+                <input
+                  id="cb-price"
+                  className="form__input"
+                  type="number"
+                  min={0}
+                  step={1}
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value === '' ? '' : Number(e.target.value))}
+                />
+              </div>
+              <div className="form__group">
+                <label className="form__label" htmlFor="cb-paid">Paid</label>
+                <div className="form__checkbox-group">
+                  <input
+                    id="cb-paid"
+                    type="checkbox"
+                    className="form__checkbox"
+                    checked={paid}
+                    onChange={(e) => setPaid(e.target.checked)}
+                  />
+                  <label htmlFor="cb-paid" className="form__checkbox-label">
+                    <span className="form__checkbox-button"></span>
+                    Mark as paid
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div className="right ma-t-sm">
+              <button
+                className="btn btn--green btn--small"
+                disabled={creating || !selectedUser || !selectedTour || price === ''}
+                onClick={async () => {
+                  try {
+                    setCreating(true);
+                    await adminService.createBookingForUser({
+                      tour: selectedTour,
+                      user: selectedUser,
+                      price: Number(price),
+                      paid
+                    });
+                    toast.success('Booking created');
+                    setSelectedUser('');
+                    setSelectedTour('');
+                    setPrice('');
+                    setPaid(true);
+                    await loadBookings();
+                  } catch (err: any) {
+                    const msg = err?.response?.data?.message || 'Failed to create booking';
+                    toast.error(msg);
+                  } finally {
+                    setCreating(false);
+                  }
+                }}
+              >
+                {creating ? 'Creating…' : 'Create booking'}
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Booking Statistics */}

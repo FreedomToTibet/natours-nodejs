@@ -37,11 +37,14 @@ router
 	.patch(bookingController.updateUserBooking)
 	.delete(bookingController.deleteUserBooking);
 
-router.use(authController.restrictTo("admin"));
+router.use(authController.restrictTo("admin", "lead-guide"));
 
 router
 	.route("/")
 	.get(bookingController.getAllBookings);
+
+// Admin can create bookings on behalf of any user
+router.post("/admin", bookingController.createAdminBooking);
 
 router
 	.route("/admin/:id")

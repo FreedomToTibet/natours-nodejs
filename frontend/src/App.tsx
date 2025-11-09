@@ -11,8 +11,19 @@ import { Overview, Tour, Login, Signup, Account, MyTours, MyGuideTours, AllRevie
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 60 * 1000,
-      retry: false, // Don't retry auth requests
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      cacheTime: 10 * 60 * 1000, // 10 minutes
+      retry: (failureCount, error: any) => {
+        // Don't retry on 429 (rate limit) or auth errors
+        if (error?.response?.status === 429 || error?.response?.status === 401) {
+          return false;
+        }
+        return failureCount < 2;
+      },
+      retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
     },
   },
 });

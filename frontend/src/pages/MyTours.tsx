@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useUserBookings, useCurrentUser } from '../hooks';
-import LoadingSpinner from '../components/LoadingSpinner';
+import { useUserBookings, useCurrentUser, usePayBooking, useCancelBooking } from '../hooks';
+import { LoadingSpinner, BookingCard } from '../components';
 
 function MyTours() {
   const navigate = useNavigate();
   const { data: user } = useCurrentUser();
   const { data: bookings, isLoading, error, refetch } = useUserBookings();
+  const payBookingMutation = usePayBooking();
+  const cancelBookingMutation = useCancelBooking();
   const [sortBy, setSortBy] = useState<'date' | 'name'>('date');
   
   // Redirect to login if not authenticated
@@ -16,12 +18,7 @@ function MyTours() {
     }
   }, [user, navigate]);
 
-  // Make sure we fetch fresh data when component mounts
-  useEffect(() => {
-    if (user) {
-      refetch();
-    }
-  }, [refetch, user]);
+  // Remove aggressive refetch - let React Query handle caching
 
   // Debug logs
   useEffect(() => {
@@ -93,49 +90,14 @@ function MyTours() {
         </div>
       </div>
 
-      <div className="card-container">
+      <div className="bookings-list">
         {sortedBookings.map((booking) => (
-          <div className="card" key={booking._id}>
-            <div className="card__header">
-              <div className="card__picture">
-                <div className="card__picture-overlay">&nbsp;</div>
-                <img
-                  src={`/img/tours/${booking.tour.imageCover}`}
-                  alt={booking.tour.name}
-                  className="card__picture-img"
-                />
-              </div>
-              <h3 className="heading-tertirary">
-                <span>{booking.tour.name}</span>
-              </h3>
-            </div>
-            <div className="card__details">
-              <h4 className="card__sub-heading">
-                {booking.tour.difficulty} {booking.tour.duration}-day tour
-              </h4>
-              <p className="card__text">
-                Booked on {new Date(booking.createdAt).toLocaleDateString()}
-              </p>
-              <div className="card__data">
-                <div>
-                  <span className="card__footer-value">${booking.price}</span>
-                  {booking.paid ? (
-                    <span className="card__footer-text card__footer-paid">Paid</span>
-                  ) : (
-                    <span className="card__footer-text card__footer-pending">Pending</span>
-                  )}
-                </div>
-              </div>
-            </div>
-            <div className="card__footer">
-              <Link
-                to={`/booking-manage/${booking._id}`}
-                className="btn btn--small btn--green"
-              >
-                View Details
-              </Link>
-            </div>
-          </div>
+          <BookingCard
+            key={booking._id}
+            booking={booking}
+            onPay={payBookingMutation.mutate}
+            onCancel={cancelBookingMutation.mutate}
+          />
         ))}
       </div>
     </div>

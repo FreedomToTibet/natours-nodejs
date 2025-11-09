@@ -88,6 +88,10 @@ export const adminService = {
 		const res = await api.get('/bookings');
 		return res.data?.data?.bookings || [];
 	},
+	async createBookingForUser(data: { tour: string; user: string; price: number; paid: boolean }): Promise<Booking> {
+		const res = await api.post('/bookings/admin', data);
+		return res.data?.data?.booking;
+	},
 	async deleteBooking(bookingId: string): Promise<void> {
 		await api.delete(`/bookings/admin/${bookingId}`);
 	}

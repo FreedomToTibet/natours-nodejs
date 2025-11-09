@@ -233,18 +233,31 @@ export const webhookCheckout = (req, res, next) => {
   res.status(200).json({ received: true });
 };
 
+// Create booking for the current user (non-admin)
 export const createBooking = catchAsync(async (req, res, next) => {
-  // Check if user already has a booking for this tour
+  // Force booking to be for the logged-in user if not admin
+  if (req.user.role !== 'admin') {
+    req.body.user = req.user.id;
+  }
+
+  // Validate required fields
+  if (!req.body.tour || !req.body.user || typeof req.body.price !== 'number') {
+    return next(new AppError('Missing required fields: tour, user, price', 400));
+  }
+
+  // Prevent duplicate booking for same tour/user
   const existingBooking = await Booking.findOne({
     tour: req.body.tour,
-    user: req.body.user
+    user: req.body.user,
   });
 
   if (existingBooking) {
     return next(new AppError('You already have a booking for this tour', 400));
   }
 
-  // Create the booking
+  // If a normal user attempts to set paid=true without Stripe, coerce to boolean but allow both cases per UI
+  // We keep current behavior but this is where further payment validation could be added.
+
   const doc = await Booking.create(req.body);
 
   res.status(201).json({
@@ -252,6 +265,31 @@ export const createBooking = catchAsync(async (req, res, next) => {
     data: {
       booking: doc,
     },
+  });
+});
+
+// Admin-only: create booking on behalf of any user
+export const createAdminBooking = catchAsync(async (req, res, next) => {
+  if (req.user.role !== 'admin') {
+    return next(new AppError('You do not have permission to perform this action', 403));
+  }
+
+  const { tour, user, price, paid } = req.body;
+  if (!tour || !user || typeof price !== 'number') {
+    return next(new AppError('Missing required fields: tour, user, price', 400));
+  }
+
+  // Prevent duplicate booking for same tour/user
+  const existingBooking = await Booking.findOne({ tour, user });
+  if (existingBooking) {
+    return next(new AppError('User already has a booking for this tour', 400));
+  }
+
+  const doc = await Booking.create({ tour, user, price, paid: !!paid });
+
+  res.status(201).json({
+    status: 'success',
+    data: { booking: doc },
   });
 });
 export const getBooking = getOne(Booking);

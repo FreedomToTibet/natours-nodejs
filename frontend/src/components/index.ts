@@ -12,3 +12,4 @@ export { default as ProtectedRoute } from './ProtectedRoute';
 export { StarRating } from './StarRating';
 export { default } from './AppLayout';
 export { default as ConfirmModal } from './ConfirmModal';
+export { default as BookingCard } from './BookingCard';

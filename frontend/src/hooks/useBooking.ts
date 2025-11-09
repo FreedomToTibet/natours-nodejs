@@ -25,10 +25,11 @@ export const useUserBookings = () => {
   return useQuery({
     queryKey: ['userBookings'],
     queryFn: () => bookingService.getUserBookings(),
-    staleTime: 0, // Always refetch when requested
-    refetchOnMount: true, // Refetch when component mounts
-    refetchOnWindowFocus: true, // Refetch when window gains focus
-    retry: 3, // Retry 3 times if fails
+    staleTime: 2 * 60 * 1000, // 2 minutes - don't refetch immediately
+    cacheTime: 5 * 60 * 1000, // 5 minutes cache
+    refetchOnMount: false, // Use cache if available
+    refetchOnWindowFocus: false, // Don't refetch on focus
+    retry: 1, // Only retry once
   });
 };
 
